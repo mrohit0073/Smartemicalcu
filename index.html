@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced EMI Calculator with Amortization</title>
+    <title>Advanced EMI Calculator with Prepayment</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,19 +27,82 @@
             </div>
         </div>
 
+        <div class="prepayment-section">
+            <h2>Prepayment Options</h2>
+            <div class="input-group">
+                <label>Prepayment Type:</label>
+                <div class="radio-group">
+                    <input type="radio" id="prepayNone" name="prepaymentType" value="none" checked>
+                    <label for="prepayNone">None</label>
+                    <input type="radio" id="prepayOneTime" name="prepaymentType" value="oneTime">
+                    <label for="prepayOneTime">One-Time</label>
+                    <input type="radio" id="prepayRecurring" name="prepaymentType" value="recurring">
+                    <label for="prepayRecurring">Recurring</label>
+                </div>
+            </div>
+
+            <div id="oneTimePrepaymentFields" class="prepayment-fields" style="display: none;">
+                <div class="input-group">
+                    <label for="oneTimeAmount">One-Time Prepayment Amount (₹):</label>
+                    <input type="number" id="oneTimeAmount" placeholder="e.g., 50000">
+                </div>
+                <div class="input-group">
+                    <label for="oneTimeMonth">Prepay After Month #:</label>
+                    <input type="number" id="oneTimeMonth" placeholder="e.g., 12 (after 1st year)">
+                </div>
+            </div>
+
+            <div id="recurringPrepaymentFields" class="prepayment-fields" style="display: none;">
+                <div class="input-group">
+                    <label for="recurringAmount">Recurring Prepayment Amount (₹):</label>
+                    <input type="number" id="recurringAmount" placeholder="e.g., 20000">
+                </div>
+                <div class="input-group">
+                    <label for="recurringFrequency">Frequency:</label>
+                    <select id="recurringFrequency">
+                        <option value="12">Annually (after every 12th EMI)</option>
+                        <option value="6">Semi-Annually (after every 6th EMI)</option>
+                        <option value="3">Quarterly (after every 3rd EMI)</option>
+                        <option value="1">Monthly (with every EMI)</option>
+                    </select>
+                </div>
+                 <div class="input-group">
+                    <label for="recurringStartMonth">Start Recurring Prepayment After Month #:</label>
+                    <input type="number" id="recurringStartMonth" placeholder="e.g., 0 or 12" value="0">
+                     <small>Enter 0 to start from the first possible instance of chosen frequency.</small>
+                </div>
+            </div>
+        </div>
+
         <button id="calculateBtn">Calculate</button>
 
         <div id="error" class="error-message" style="display: none;"></div>
 
         <div id="summaryResults" class="results-container" style="display: none;">
             <h2>Loan Summary:</h2>
-            <p>Monthly EMI: <strong id="monthlyEMI" class="result-value"></strong></p>
-            <p>Total Interest Payable: <strong id="totalInterest" class="result-value"></strong></p>
-            <p>Total Payment (Principal + Interest): <strong id="totalPayment" class="result-value"></strong></p>
+            <div class="summary-grid">
+                <div><p>Original Monthly EMI:</p><strong id="monthlyEMI" class="result-value"></strong></div>
+                <div><p>Original Total Interest:</p><strong id="originalTotalInterest" class="result-value"></strong></div>
+                <div><p>Original Total Payment:</p><strong id="originalTotalPayment" class="result-value"></strong></div>
+            </div>
+            <div id="prepaymentSummary" style="display:none;">
+                <hr class="summary-hr">
+                <h3>With Prepayment:</h3>
+                <div class="summary-grid">
+                    <div><p>New Loan Tenure:</p><strong id="newTenure" class="result-value"></strong></div>
+                    <div><p>Total Interest Paid:</p><strong id="newTotalInterest" class="result-value"></strong></div>
+                    <div><p>Total Amount Paid:</p><strong id="newTotalPayment" class="result-value"></strong></div>
+                    <div><p>Interest Saved:</p><strong id="interestSaved" class="result-value highlight-saved"></strong></div>
+                    <div><p>Money Saved (Interest - Prepayments):</p><strong id="moneySaved" class="result-value highlight-saved"></strong></div>
+                     <div><p>Total Prepayments Made:</p><strong id="totalPrepaymentsMade" class="result-value"></strong></div>
+                </div>
+            </div>
         </div>
+
 
         <div id="amortizationSection" style="display: none;">
             <h2>Amortization Schedule:</h2>
+            <p id="amortizationNote" style="font-style:italic; font-size:0.9em; margin-bottom:10px;"></p>
             <div class="table-container">
                 <table>
                     <thead>
@@ -47,7 +110,9 @@
                             <th>Month</th>
                             <th>Principal (P)</th>
                             <th>Interest (I)</th>
-                            <th>EMI</th>
+                            <th>Prepayment</th>
+                            <th>Total Payment</th>
+                            <th>EMI (Base)</th>
                             <th>Outstanding Balance</th>
                         </tr>
                     </thead>
