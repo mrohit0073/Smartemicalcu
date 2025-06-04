@@ -16,21 +16,23 @@
       <fieldset>
         <legend>Prepayment Option 1</legend>
         <label>Type:
-          <select class="prepaymentType">
-            <option value="amount">Money</option>
-            <option value="interest">Interest</option>
-          </select>
-        </label>
+  <select class="prepaymentType" onchange="handlePrepaymentTypeChange(this)">
+    <option value="amount">Money</option>
+    <option value="interest">Interest</option>
+  </select>
+</label>
         <label>Value: <input type="number" step="0.01" class="prepaymentValue"></label>
-        <label>Frequency:
-          <select class="frequency">
-            <option value="once">Once</option>
-            <option value="monthly">Monthly</option>
-            <option value="quarterly">Quarterly</option>
-            <option value="halfyearly">Half-yearly</option>
-            <option value="yearly">Yearly</option>
-          </select>
-        </label>
+        <div class="frequencyWrapper">
+  <label>Frequency:
+    <select class="frequency">
+      <option value="once">Once</option>
+      <option value="monthly">Monthly</option>
+      <option value="quarterly">Quarterly</option>
+      <option value="halfyearly">Half-yearly</option>
+      <option value="yearly">Yearly</option>
+    </select>
+  </label>
+</div>
         <label>Start (Month): <input type="number" class="prepayStart"></label>
         <label>End (Month): <input type="number" class="prepayEnd"></label>
       </fieldset>
