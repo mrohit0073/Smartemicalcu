@@ -17,16 +17,17 @@ body {
     border-radius: 12px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     width: 100%;
-    max-width: 900px; /* Slightly wider for new options */
+    max-width: 950px; /* Wider for multiple inputs */
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
     color: #1a3b5d;
     text-align: center;
 }
 h1 { margin-bottom: 30px; font-size: 2em; font-weight: 600; }
 h2 { margin-top: 30px; margin-bottom: 20px; font-size: 1.6em; border-bottom: 2px solid #dbe3eb; padding-bottom: 10px; text-align: left;}
 h3 { margin-top: 20px; margin-bottom: 15px; font-size: 1.3em; color: #2c5079; text-align: left; }
+h4 { margin-top: 15px; margin-bottom: 10px; font-size: 1.1em; color: #3d6a9a; border-bottom: 1px dashed #dbe3eb; padding-bottom: 5px;}
 
 .input-section, .prepayment-section, .output-options-section {
     margin-bottom: 25px;
@@ -53,6 +54,7 @@ label[for^="prepay"], label[for^="outcome"] {
 
 
 .input-group input[type="number"],
+.input-group input[type="month"], /* Added type="month" */
 .input-group select {
     width: calc(100% - 24px);
     padding: 12px;
@@ -65,6 +67,7 @@ label[for^="prepay"], label[for^="outcome"] {
 .input-group select { width: 100%; }
 
 .input-group input[type="number"]:focus,
+.input-group input[type="month"]:focus, /* Added type="month" */
 .input-group select:focus {
     outline: none;
     border-color: #007bff;
@@ -89,19 +92,64 @@ label[for^="prepay"], label[for^="outcome"] {
     background-color: #f8f9fa;
 }
 
-.nested-fields { /* For lumpsum/recurring fields under money, or rate change fields */
+.nested-fields { /* For lumpsum/recurring/rate change sections */
     padding: 15px;
-    margin-top: 10px;
-    border: 1px dashed #dbe3eb; /* Lighter dashed border for nesting */
+    margin-top: 15px;
+    border: 1px solid #dbe3eb; /* Solid border for clarity */
     border-radius: 6px;
-    background-color: #ffffff; /* Lighter background for nesting */
+    background-color: #ffffff;
 }
 
-.prepayment-fields .input-group, .nested-fields .input-group {
-    margin-bottom: 15px;
+/* Style for individual dynamic input rows */
+.lumpsum-input-row, .recurring-input-row, .rate-change-input-row {
+    border: 1px solid #eee;
+    padding: 15px;
+    margin-bottom: 15px; /* Space between rows */
+    border-radius: 8px;
+    background-color: #fcfdff;
+    position: relative; /* For remove button positioning */
 }
-.prepayment-fields .input-group:last-child, .nested-fields .input-group:last-child {
-    margin-bottom: 0;
+.lumpsum-input-row:last-of-type, .recurring-input-row:last-of-type, .rate-change-input-row:last-of-type {
+    margin-bottom: 0; /* No margin after last row */
+}
+
+/* Remove button within dynamic rows */
+.remove-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.85em;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    transition: background-color 0.2s ease;
+}
+.remove-btn:hover {
+    background-color: #c82333;
+}
+
+/* Add event button below dynamic rows */
+.add-event-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    display: block;
+    width: auto;
+    margin-top: 20px; /* Space above button */
+    margin-left: auto; /* Center button */
+    margin-right: auto; /* Center button */
+}
+.add-event-btn:hover {
+    background-color: #218838;
 }
 
 
@@ -212,5 +260,24 @@ small { font-size: 0.85em; color: #555; display: block; margin-top: 4px;}
 /* Add styling for the new outcome section */
 .output-options-section .radio-group label {
     font-weight: normal;
-    margin-right: 30px; /* More space between these options */
+    margin-right: 30px;
+}
+
+/* Style for the new configured adjustments summary */
+#configuredAdjustmentsSummary {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f0f4f8; /* A slightly different background */
+    border-radius: 8px;
+    border-left: 5px solid #2c5079;
+}
+#configuredAdjustmentsSummary h4 {
+    text-align: left;
+    margin-bottom: 10px;
+}
+#configuredAdjustmentsSummary p {
+    margin: 5px 0;
+    font-size: 0.95em;
+    color: #555;
+    padding-left: 10px; /* Indent the list items */
 }
