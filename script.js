@@ -1,59 +1,40 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Main Inputs
+    // --- Main Inputs ---
     const loanAmountInput = document.getElementById('loanAmount');
     const interestRateInput = document.getElementById('interestRate');
     const loanTenureInput = document.getElementById('loanTenure');
+    const loanStartMonthInput = document.getElementById('loanStartMonth'); // New: Loan Start Month
     const calculateBtn = document.getElementById('calculateBtn');
     const errorDiv = document.getElementById('error');
 
-    // Prepayment Goal Type Radios (Money / Interest / None)
+    // --- Prepayment Goal Type Radios ---
     const prepayGoalNoneRadio = document.getElementById('prepayGoalNone');
     const prepayGoalMoneyRadio = document.getElementById('prepayGoalMoney');
-    const prepayGoalInterestRadio = document.getElementById('prepayGoalInterest');
-
-    // Prepayment Goal Type Sections
     const moneyPrepaymentOptionsDiv = document.getElementById('moneyPrepaymentOptions');
-    const interestPrepaymentOptionsDiv = document.getElementById('interestPrepaymentOptions');
 
-    // Money Prepayment Mode Radios (Lumpsum / Recurring)
+    // --- Money Prepayment Mode Radios ---
     const prepayLumpsumRadio = document.getElementById('prepayLumpsum');
     const prepayRecurringRadio = document.getElementById('prepayRecurring');
+    const lumpsumSectionDiv = document.getElementById('lumpsumSection');
+    const recurringSectionDiv = document.getElementById('recurringSection');
 
-    // Money Prepayment Mode Sections
-    const lumpsumPrepaymentFields = document.getElementById('lumpsumPrepaymentFields');
-    const recurringPrepaymentFields = document.getElementById('recurringPrepaymentFields');
+    // --- Dynamic Prepayment/Rate Change Containers and Buttons ---
+    const lumpsumPrepaymentContainer = document.getElementById('lumpsumPrepaymentContainer');
+    const addLumpsumBtn = document.getElementById('addLumpsumBtn');
+    const recurringPrepaymentContainer = document.getElementById('recurringPrepaymentContainer');
+    const addRecurringBtn = document.getElementById('addRecurringBtn');
+    const rateChangeContainer = document.getElementById('rateChangeContainer');
+    const addRateChangeBtn = document.getElementById('addRateChangeBtn');
 
-    // Lumpsum Prepayment Inputs
-    const lumpsumAmountInput = document.getElementById('lumpsumAmount');
-    const lumpsumMonthInput = document.getElementById('lumpsumMonth');
-
-    // Recurring Prepayment Inputs (Money)
-    const recurringAmountInput = document.getElementById('recurringAmount');
-    const recurringFrequencySelect = document.getElementById('recurringFrequency');
-    const recurringStartMonthInput = document.getElementById('recurringStartMonth');
-    const recurringEndMonthInput = document.getElementById('recurringEndMonth');
-
-    // Interest Prepayment Inputs
-    const interestPrepayAmountInput = document.getElementById('interestPrepayAmount');
-    const interestPrepayStartMonthInput = document.getElementById('interestPrepayStartMonth');
-    const interestPrepayEndMonthInput = document.getElementById('interestPrepayEndMonth');
-
-    // Rate Change Elements
-    const enableRateChangeCheckbox = document.getElementById('enableRateChange');
-    const rateChangeFieldsDiv = document.getElementById('rateChangeFields');
-    const newInterestRateInput = document.getElementById('newInterestRate');
-    const rateChangeMonthInput = document.getElementById('rateChangeMonth');
-
-    // Output Outcome Radios
+    // --- Output Outcome Radios ---
     const outcomeReduceTenureRadio = document.getElementById('outcomeReduceTenure');
     const outcomeReduceEMIRadio = document.getElementById('outcomeReduceEMI');
 
-    // Output Elements
+    // --- Output Elements ---
     const summaryResultsDiv = document.getElementById('summaryResults');
     const monthlyEMIEl = document.getElementById('monthlyEMI');
     const originalTotalInterestEl = document.getElementById('originalTotalInterest');
     const originalTotalPaymentEl = document.getElementById('originalTotalPayment');
-
     const prepaymentSummaryDiv = document.getElementById('prepaymentSummary');
     const newTenureLabel = document.getElementById('newTenureLabel');
     const newTenureEl = document.getElementById('newTenure');
@@ -64,29 +45,143 @@ document.addEventListener('DOMContentLoaded', () => {
     const interestSavedEl = document.getElementById('interestSaved');
     const moneySavedEl = document.getElementById('moneySaved');
     const totalPrepaymentsMadeEl = document.getElementById('totalPrepaymentsMade');
-
     const amortizationSectionDiv = document.getElementById('amortizationSection');
     const amortizationTableBody = document.getElementById('amortizationTableBody');
     const amortizationNoteEl = document.getElementById('amortizationNote');
+    const configuredAdjustmentsSummaryDiv = document.getElementById('configuredAdjustmentsSummary'); // New
+    const lumpsumSummaryList = document.getElementById('lumpsumSummaryList'); // New
+    const recurringSummaryList = document.getElementById('recurringSummaryList'); // New
+    const rateChangeSummaryList = document.getElementById('rateChangeSummaryList'); // New
 
-    // --- Event Listeners for UI toggles ---
+    // --- Global Counters for Dynamic IDs ---
+    let lumpsumIdCounter = 1;
+    let recurringIdCounter = 1;
+    let rateChangeIdCounter = 1;
 
-    // Prepayment Goal Type (Money/Interest/None)
-    [prepayGoalNoneRadio, prepayGoalMoneyRadio, prepayGoalInterestRadio].forEach(radio => {
+    // --- Helper Functions for Date Conversion ---
+    function getMonthDiff(d1, d2) {
+        // d1, d2 are Date objects
+        let months;
+        months = (d2.getFullYear() - d1.getFullYear()) * 12;
+        months -= d1.getMonth();
+        months += d2.getMonth();
+        return months;
+    }
+
+    function dateToLoanMonth(inputDateStr, loanStartMonthStr) {
+        if (!inputDateStr || !loanStartMonthStr) return null;
+        const inputDate = new Date(inputDateStr + '-01'); // Append -01 to make it a valid date for parsing
+        const loanStartDate = new Date(loanStartMonthStr + '-01');
+
+        if (isNaN(inputDate.getTime()) || isNaN(loanStartDate.getTime())) return null;
+
+        const diffMonths = getMonthDiff(loanStartDate, inputDate);
+        return diffMonths + 1; // Month 1 is the loan start month itself
+    }
+
+    function loanMonthToDate(loanStartMonthStr, loanMonthNum) {
+        if (!loanStartMonthStr || loanMonthNum === null) return null;
+        const loanStartDate = new Date(loanStartMonthStr + '-01');
+        if (isNaN(loanStartDate.getTime())) return null;
+
+        const targetDate = new Date(loanStartDate);
+        targetDate.setMonth(loanStartDate.getMonth() + loanMonthNum - 1); // Subtract 1 because loanMonthNum is 1-indexed
+
+        return targetDate.toISOString().slice(0, 7); // Returns YYYY-MM
+    }
+
+    // --- Dynamic Input Row Management ---
+
+    function createInputRow(type, id) {
+        const div = document.createElement('div');
+        div.classList.add(`${type}-input-row`);
+        div.dataset.id = id;
+        div.innerHTML = `
+            ${type === 'lumpsum' ? `
+                <div class="input-group">
+                    <label for="lumpsumAmount_${id}">Amount (₹):</label>
+                    <input type="number" id="lumpsumAmount_${id}" class="lumpsum-amount" placeholder="e.g., 50000">
+                </div>
+                <div class="input-group">
+                    <label for="lumpsumMonth_${id}">Month:</label>
+                    <input type="month" id="lumpsumMonth_${id}" class="lumpsum-month">
+                </div>
+            ` : type === 'recurring' ? `
+                <div class="input-group">
+                    <label for="recurringAmount_${id}">Amount (₹):</label>
+                    <input type="number" id="recurringAmount_${id}" class="recurring-amount" placeholder="e.g., 2000">
+                </div>
+                <div class="input-group">
+                    <label for="recurringFrequency_${id}">Frequency:</label>
+                    <select id="recurringFrequency_${id}" class="recurring-frequency">
+                        <option value="12">Annually (every 12 months)</option>
+                        <option value="6">Semi-Annually (every 6 months)</option>
+                        <option value="3">Quarterly (every 3 months)</option>
+                        <option value="1">Monthly (every month)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="recurringStartMonth_${id}">Start Month:</label>
+                    <input type="month" id="recurringStartMonth_${id}" class="recurring-start-month">
+                </div>
+                 <div class="input-group">
+                    <label for="recurringEndMonth_${id}">End Month:</label>
+                    <input type="month" id="recurringEndMonth_${id}" class="recurring-end-month">
+                    <small>Leave empty to continue until loan ends.</small>
+                </div>
+            ` : ` <div class="input-group">
+                    <label for="newInterestRate_${id}">New Annual Interest Rate (%):</label>
+                    <input type="number" id="newInterestRate_${id}" class="new-interest-rate" placeholder="e.g., 9.0">
+                </div>
+                <div class="input-group">
+                    <label for="rateChangeStartMonth_${id}">Start Month:</label>
+                    <input type="month" id="rateChangeStartMonth_${id}" class="rate-change-start-month">
+                </div>
+                <div class="input-group">
+                    <label for="rateChangeEndMonth_${id}">End Month:</label>
+                    <input type="month" id="rateChangeEndMonth_${id}" class="rate-change-end-month">
+                    <small>Leave empty to continue until loan ends. Rate reverts to original after this month.</small>
+                </div>
+            `}
+            <button type="button" class="remove-btn">Remove</button>
+        `;
+        return div;
+    }
+
+    function addRow(container, type, counter) {
+        const newRow = createInputRow(type, counter);
+        container.appendChild(newRow);
+        newRow.querySelector('.remove-btn').addEventListener('click', () => {
+            newRow.remove();
+            // Show remove button for remaining rows if more than one
+            if (container.children.length === 1) {
+                container.children[0].querySelector('.remove-btn').style.display = 'none';
+            }
+        });
+        // Show remove button for all existing rows
+        Array.from(container.children).forEach(row => {
+            if (container.children.length > 1) {
+                row.querySelector('.remove-btn').style.display = 'block';
+            }
+        });
+    }
+
+    // --- Event Listeners for UI toggles and dynamic row additions ---
+
+    // Prepayment Goal Type (Money/None)
+    [prepayGoalNoneRadio, prepayGoalMoneyRadio].forEach(radio => {
         radio.addEventListener('change', () => {
             moneyPrepaymentOptionsDiv.style.display = prepayGoalMoneyRadio.checked ? 'block' : 'none';
-            interestPrepaymentOptionsDiv.style.display = prepayGoalInterestRadio.checked ? 'block' : 'none';
-            // Also hide money mode fields if money type is not selected
             if (!prepayGoalMoneyRadio.checked) {
-                lumpsumPrepaymentFields.style.display = 'none';
-                recurringPrepaymentFields.style.display = 'none';
+                lumpsumSectionDiv.style.display = 'none';
+                recurringSectionDiv.style.display = 'none';
             } else { // If money is selected, ensure default lumpsum or recurring is shown
                 if (prepayLumpsumRadio.checked) {
-                    lumpsumPrepaymentFields.style.display = 'block';
-                    recurringPrepaymentFields.style.display = 'none';
+                    lumpsumSectionDiv.style.display = 'block';
+                    recurringSectionDiv.style.display = 'none';
                 } else if (prepayRecurringRadio.checked) {
-                    lumpsumPrepaymentFields.style.display = 'none';
-                    recurringPrepaymentFields.style.display = 'block';
+                    lumpsumSectionDiv.style.display = 'none';
+                    recurringSectionDiv.style.display = 'block';
                 }
             }
         });
@@ -95,15 +190,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Money Prepayment Mode (Lumpsum/Recurring)
     [prepayLumpsumRadio, prepayRecurringRadio].forEach(radio => {
         radio.addEventListener('change', () => {
-            lumpsumPrepaymentFields.style.display = prepayLumpsumRadio.checked ? 'block' : 'none';
-            recurringPrepaymentFields.style.display = prepayRecurringRadio.checked ? 'block' : 'none';
+            lumpsumSectionDiv.style.display = prepayLumpsumRadio.checked ? 'block' : 'none';
+            recurringSectionDiv.style.display = prepayRecurringRadio.checked ? 'block' : 'none';
         });
     });
 
-    // Enable Interest Rate Change Checkbox
-    enableRateChangeCheckbox.addEventListener('change', () => {
-        rateChangeFieldsDiv.style.display = enableRateChangeCheckbox.checked ? 'block' : 'none';
-    });
+    // Add row buttons
+    addLumpsumBtn.addEventListener('click', () => addRow(lumpsumPrepaymentContainer, 'lumpsum', ++lumpsumIdCounter));
+    addRecurringBtn.addEventListener('click', () => addRow(recurringPrepaymentContainer, 'recurring', ++recurringIdCounter));
+    addRateChangeBtn.addEventListener('click', () => addRow(rateChangeContainer, 'rate-change', ++rateChangeIdCounter));
+
+    // Initial setup for remove buttons (hide if only one row)
+    lumpsumPrepaymentContainer.querySelector('.remove-btn').style.display = 'none';
+    recurringPrepaymentContainer.querySelector('.remove-btn').style.display = 'none';
+    rateChangeContainer.querySelector('.remove-btn').style.display = 'none';
 
     // --- Main Calculation Logic ---
 
@@ -114,6 +214,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const principal = parseFloat(loanAmountInput.value);
         const annualInterestRate = parseFloat(interestRateInput.value);
         const tenureYears = parseFloat(loanTenureInput.value);
+        const loanStartMonthStr = loanStartMonthInput.value;
+
         const originalMonthlyInterestRate = annualInterestRate / 12 / 100;
         const originalTenureMonths = tenureYears * 12;
 
@@ -144,33 +246,57 @@ document.addEventListener('DOMContentLoaded', () => {
         summaryResultsDiv.style.display = 'block';
         prepaymentSummaryDiv.style.display = 'none'; // Hide initially
 
-        // --- Prepayment and Rate Change Details ---
+        // --- Collect All Prepayment & Rate Change Events ---
         const prepayGoalType = document.querySelector('input[name="prepayGoalType"]:checked').value;
-        const moneyPrepaymentMode = document.querySelector('input[name="moneyPrepaymentMode"]:checked')?.value || 'none'; // Will be 'none' if prepayGoalMoney is not checked
+        const moneyPrepaymentMode = document.querySelector('input[name="moneyPrepaymentMode"]:checked')?.value || 'none';
 
-        // Lumpsum details
-        const lumpsumAmount = (prepayGoalType === 'money' && moneyPrepaymentMode === 'lumpsum') ? parseFloat(lumpsumAmountInput.value) || 0 : 0;
-        const lumpsumMonth = (prepayGoalType === 'money' && moneyPrepaymentMode === 'lumpsum') ? parseInt(lumpsumMonthInput.value) || 0 : 0;
+        const lumpsumEvents = [];
+        if (prepayGoalType === 'money' && moneyPrepaymentMode === 'lumpsum') {
+            document.querySelectorAll('.lumpsum-input-row').forEach(row => {
+                const amount = parseFloat(row.querySelector('.lumpsum-amount').value);
+                const monthStr = row.querySelector('.lumpsum-month').value;
+                const month = dateToLoanMonth(monthStr, loanStartMonthStr);
+                if (!isNaN(amount) && amount > 0 && month !== null && month > 0) {
+                    lumpsumEvents.push({ amount, month });
+                }
+            });
+        }
+        // Sort lumpsum events by month
+        lumpsumEvents.sort((a, b) => a.month - b.month);
 
-        // Recurring (Money) details
-        const recurringAmount = (prepayGoalType === 'money' && moneyPrepaymentMode === 'recurring') ? parseFloat(recurringAmountInput.value) || 0 : 0;
-        const recurringFrequency = (prepayGoalType === 'money' && moneyPrepaymentMode === 'recurring') ? parseInt(recurringFrequencySelect.value) || 0 : 0;
-        const recurringStartMonth = (prepayGoalType === 'money' && moneyPrepaymentMode === 'recurring') ? parseInt(recurringStartMonthInput.value) || 0 : 0;
-        let recurringEndMonth = (prepayGoalType === 'money' && moneyPrepaymentMode === 'recurring') ? parseInt(recurringEndMonthInput.value) || originalTenureMonths * 2 : originalTenureMonths * 2; // Default to max loan tenure if empty
 
-        // Interest Prepayment details
-        const interestPrepayAmount = (prepayGoalType === 'interest') ? parseFloat(interestPrepayAmountInput.value) || 0 : 0;
-        const interestPrepayStartMonth = (prepayGoalType === 'interest') ? parseInt(interestPrepayStartMonthInput.value) || 0 : 0;
-        let interestPrepayEndMonth = (prepayGoalType === 'interest') ? parseInt(interestPrepayEndMonthInput.value) || originalTenureMonths * 2 : originalTenureMonths * 2; // Default to max loan tenure
+        const recurringEvents = [];
+        if (prepayGoalType === 'money' && moneyPrepaymentMode === 'recurring') {
+            document.querySelectorAll('.recurring-input-row').forEach(row => {
+                const amount = parseFloat(row.querySelector('.recurring-amount').value);
+                const frequency = parseInt(row.querySelector('.recurring-frequency').value);
+                const startMonthStr = row.querySelector('.recurring-start-month').value;
+                const endMonthStr = row.querySelector('.recurring-end-month').value;
+                const startMonth = dateToLoanMonth(startMonthStr, loanStartMonthStr) || 0;
+                const endMonth = endMonthStr ? dateToLoanMonth(endMonthStr, loanStartMonthStr) : originalTenureMonths * 2; // Default to max iteration
 
-        // Rate Change details
-        const enableRateChange = enableRateChangeCheckbox.checked;
-        const newAnnualInterestRate = enableRateChange ? parseFloat(newInterestRateInput.value) : 0;
-        const rateChangeEffectiveMonth = enableRateChange ? parseInt(rateChangeMonthInput.value) || 0 : 0;
-        const newMonthlyInterestRate = newAnnualInterestRate / 12 / 100;
+                if (!isNaN(amount) && amount > 0 && frequency > 0 && startMonth >= 0) {
+                    recurringEvents.push({ amount, frequency, startMonth, endMonth });
+                }
+            });
+        }
+        // No specific sorting needed for recurring, as they are applied by frequency
 
-        // Output Outcome Type
-        const outcomeReduceTenure = outcomeReduceTenureRadio.checked;
+        const rateChangeEvents = [];
+        document.querySelectorAll('.rate-change-input-row').forEach(row => {
+            const newRate = parseFloat(row.querySelector('.new-interest-rate').value);
+            const startMonthStr = row.querySelector('.rate-change-start-month').value;
+            const endMonthStr = row.querySelector('.rate-change-end-month').value;
+            const startMonth = dateToLoanMonth(startMonthStr, loanStartMonthStr);
+            const endMonth = endMonthStr ? dateToLoanMonth(endMonthStr, loanStartMonthStr) : originalTenureMonths * 2; // Default to max iteration
+
+            if (!isNaN(newRate) && newRate >= 0 && startMonth !== null && startMonth > 0) {
+                rateChangeEvents.push({ newRate: newRate / 12 / 100, startMonth, endMonth });
+            }
+        });
+        // Sort rate change events by start month
+        rateChangeEvents.sort((a, b) => a.startMonth - b.startMonth);
+
 
         // --- Amortization Calculation ---
         let balance = principal;
@@ -184,141 +310,123 @@ document.addEventListener('DOMContentLoaded', () => {
         amortizationTableBody.innerHTML = '';
         amortizationNoteEl.textContent = '';
 
-        // Max iterations to prevent infinite loops (60 years or double original tenure, whichever is higher)
-        const maxMonthsToIterate = Math.max(originalTenureMonths * 2, 720);
+        const maxMonthsToIterate = Math.max(originalTenureMonths * 2, 720); // Max 60 years or double original
 
-        let lastInterestRateChangeMonth = 0; // To track when the last rate or EMI change occurred
-        let lastPrepaymentEventMonth = 0; // To track when last lump/recurring occurred
-
+        // Amortization Loop
         while (balance > 0.01 && actualMonthsPaid < maxMonthsToIterate) {
             actualMonthsPaid++;
             currentMonth++;
 
             let currentMonthlyInterestRate = originalMonthlyInterestRate;
+            let currentPrepaymentThisMonth = 0;
+            let currentRateApplied = originalMonthlyInterestRate; // For display/tracking
 
-            // Apply Interest Rate Change
-            if (enableRateChange && currentMonth >= rateChangeEffectiveMonth && currentMonth > lastInterestRateChangeMonth) {
-                currentMonthlyInterestRate = newMonthlyInterestRate;
-                // If reducing EMI, recalculate EMI after rate change
-                if (!outcomeReduceTenure && originalTenureMonths - (currentMonth - 1) > 0) { // Recalc if original tenure still has months left
-                    currentEMI = calculateEMI(balance, currentMonthlyInterestRate, originalTenureMonths - (currentMonth - 1));
-                    lastInterestRateChangeMonth = currentMonth;
+            // Apply Interest Rate Changes for the current month
+            for (const rcEvent of rateChangeEvents) {
+                if (currentMonth >= rcEvent.startMonth && currentMonth <= rcEvent.endMonth) {
+                    currentMonthlyInterestRate = rcEvent.newRate;
+                    currentRateApplied = rcEvent.newRate;
+                    break; // Apply the first applicable rate change (assuming no overlaps or specific hierarchy)
                 }
-            } else if (currentMonth < rateChangeEffectiveMonth || !enableRateChange) {
-                currentMonthlyInterestRate = originalMonthlyInterestRate;
-            } else { // Rate change already happened
-                currentMonthlyInterestRate = newMonthlyInterestRate;
             }
 
 
             let interestForMonth = (currentMonthlyInterestRate === 0) ? 0 : balance * currentMonthlyInterestRate;
-            let principalPaidThisMonth = Math.max(0, currentEMI - interestForMonth); // Ensure principal paid isn't negative
+            let principalPaidThisMonthFromEMI = Math.max(0, currentEMI - interestForMonth);
 
-            let prepaymentThisMonth = 0;
-
-            // Apply Lumpsum Prepayment (Money)
-            if (prepayGoalType === 'money' && moneyPrepaymentMode === 'lumpsum' && currentMonth === lumpsumMonth && lumpsumAmount > 0) {
-                prepaymentThisMonth += Math.min(lumpsumAmount, balance - principalPaidThisMonth);
+            // Apply Lumpsum Prepayments for the current month
+            for (const lsEvent of lumpsumEvents) {
+                if (currentMonth === lsEvent.month && lsEvent.amount > 0) {
+                    currentPrepaymentThisMonth += lsEvent.amount;
+                    lsEvent.amount = 0; // Mark as applied
+                }
             }
 
-            // Apply Recurring Prepayment (Money)
-            if (prepayGoalType === 'money' && moneyPrepaymentMode === 'recurring' && recurringAmount > 0) {
-                if (currentMonth > recurringStartMonth && currentMonth <= recurringEndMonth) {
-                    if ((currentMonth - recurringStartMonth) % recurringFrequency === 0) {
-                        prepaymentThisMonth += Math.min(recurringAmount, balance - principalPaidThisMonth - prepaymentThisMonth); // Subtract any lumpsum
+            // Apply Recurring Prepayments for the current month
+            for (const recEvent of recurringEvents) {
+                if (recEvent.amount > 0 && currentMonth >= recEvent.startMonth && currentMonth <= recEvent.endMonth) {
+                    if ((currentMonth - recEvent.startMonth) % recEvent.frequency === 0) {
+                        currentPrepaymentThisMonth += recEvent.amount;
                     }
                 }
             }
 
-            // Apply Interest Prepayment (Recurring)
-            if (prepayGoalType === 'interest' && interestPrepayAmount > 0) {
-                if (currentMonth > interestPrepayStartMonth && currentMonth <= interestPrepayEndMonth) {
-                    prepaymentThisMonth += Math.min(interestPrepayAmount, balance - principalPaidThisMonth - prepaymentThisMonth);
-                }
-            }
-            
-            // Adjust principal paid if loan is ending
-            if (balance + interestForMonth < currentEMI + prepaymentThisMonth) {
-                principalPaidThisMonth = balance - prepaymentThisMonth; // Adjust principal to clear balance after prepay
-                if (principalPaidThisMonth < 0) principalPaidThisMonth = 0;
-            }
-            if (balance < principalPaidThisMonth + prepaymentThisMonth) {
-                principalPaidThisMonth = balance - prepaymentThisMonth;
-                if (principalPaidThisMonth < 0) principalPaidThisMonth = 0;
-            }
-
-            totalPrepaymentsSum += prepaymentThisMonth;
+            // Ensure prepayment doesn't exceed outstanding balance
+            currentPrepaymentThisMonth = Math.min(currentPrepaymentThisMonth, balance - principalPaidThisMonthFromEMI);
+            if (currentPrepaymentThisMonth < 0) currentPrepaymentThisMonth = 0;
 
 
-            // Recalculate EMI for "Reduce EMI" option AFTER prepayments/rate changes apply to balance
+            // Recalculate EMI for "Reduce EMI" option
+            const outcomeReduceTenure = outcomeReduceTenureRadio.checked;
             if (!outcomeReduceTenure) { // If 'Reduce EMI' is selected
                 let reCalcEMI = false;
-                // Recalculate if a prepayment was made AND it's not the loan's very last month
-                if (prepaymentThisMonth > 0 && currentMonth > lastPrepaymentEventMonth) {
-                     reCalcEMI = true;
-                     lastPrepaymentEventMonth = currentMonth;
-                }
-                // Recalculate EMI if interest rate changed in this month and we haven't already
-                if (enableRateChange && currentMonth === rateChangeEffectiveMonth && currentMonth > lastInterestRateChangeMonth) {
+                // Trigger recalculation if any event is active or just started/ended
+                if (currentPrepaymentThisMonth > 0 || // Any prepayment this month
+                    rateChangeEvents.some(rc => currentMonth === rc.startMonth || currentMonth === rc.endMonth + 1) // Rate change starts/ends
+                ) {
                     reCalcEMI = true;
-                    lastInterestRateChangeMonth = currentMonth;
                 }
-                 // If the loan is effectively paid off with remaining balance + principal + prepay
-                if (balance - principalPaidThisMonth - prepaymentThisMonth <= 0.01 && balance > 0.01) {
-                     reCalcEMI = true; // Final adjustment needed
+                
+                // If loan is effectively paid off with current payment
+                if (balance - principalPaidThisMonthFromEMI - currentPrepaymentThisMonth <= 0.01 && balance > 0.01) {
+                    reCalcEMI = true; // Final adjustment needed
                 }
+
 
                 if (reCalcEMI) {
-                     const monthsRemainingForEMI = originalTenureMonths - currentMonth;
-                     if (monthsRemainingForEMI > 0) {
-                         currentEMI = calculateEMI(balance - principalPaidThisMonth - prepaymentThisMonth, currentMonthlyInterestRate, monthsRemainingForEMI);
-                     } else {
-                         currentEMI = 0; // Loan fully paid or tenure reached
-                     }
-                     if (!isFinite(currentEMI) || currentEMI < 0) currentEMI = 0; // Handle edge cases
+                    const monthsRemainingForEMI = originalTenureMonths - (currentMonth -1); // Months from start of current month
+                    if (monthsRemainingForEMI > 0) {
+                        // Calculate new EMI based on remaining balance and remaining original tenure
+                        currentEMI = calculateEMI(
+                            balance - principalPaidThisMonthFromEMI - currentPrepaymentThisMonth,
+                            currentMonthlyInterestRate,
+                            monthsRemainingForEMI
+                        );
+                        if (!isFinite(currentEMI) || currentEMI < 0) currentEMI = 0; // Handle edge cases
+                    } else {
+                        currentEMI = 0; // Loan tenure reached or passed
+                    }
                 }
             }
+            // Ensure principal paid from EMI doesn't exceed remaining balance - prepayment
+            principalPaidThisMonthFromEMI = Math.min(principalPaidThisMonthFromEMI, balance - currentPrepaymentThisMonth);
+            if(principalPaidThisMonthFromEMI < 0) principalPaidThisMonthFromEMI = 0; // Can happen if prepayment cleared it
 
             // Update balance
-            balance -= principalPaidThisMonth;
-            balance -= prepaymentThisMonth;
+            balance -= principalPaidThisMonthFromEMI;
+            balance -= currentPrepaymentThisMonth;
 
             totalInterestPaidWithAdjustments += interestForMonth;
-            totalPrincipalPaidViaEMI += principalPaidThisMonth;
+            totalPrincipalPaidViaEMI += principalPaidThisMonthFromEMI;
+            totalPrepaymentsSum += currentPrepaymentThisMonth;
 
-
-            if (balance < 0.01) { // Final adjustments for the last month to ensure balance is 0
-                const finalPrincipalAdjust = principalPaidThisMonth + balance;
-                if (finalPrincipalAdjust > 0) principalPaidThisMonth = finalPrincipalAdjust;
-                balance = 0;
-            }
+            // Ensure balance doesn't go negative on final payment
+            if (balance < 0.01 && balance > -1) balance = 0; // small float errors
 
             const row = amortizationTableBody.insertRow();
             row.insertCell().textContent = currentMonth;
-            row.insertCell().textContent = formatCurrency(principalPaidThisMonth);
+            row.insertCell().textContent = formatCurrency(principalPaidThisMonthFromEMI);
             row.insertCell().textContent = formatCurrency(interestForMonth);
-            row.insertCell().textContent = formatCurrency(prepaymentThisMonth);
-            row.insertCell().textContent = formatCurrency(principalPaidThisMonth + interestForMonth + prepaymentThisMonth);
-            row.insertCell().textContent = formatCurrency(currentEMI); // Show the current EMI
+            row.insertCell().textContent = formatCurrency(currentPrepaymentThisMonth);
+            row.insertCell().textContent = formatCurrency(principalPaidThisMonthFromEMI + interestForMonth + currentPrepaymentThisMonth);
+            row.insertCell().textContent = formatCurrency(currentEMI);
             row.insertCell().textContent = formatCurrency(balance);
 
             if (balance <= 0.01) break; // Loan paid off
         }
 
         if (actualMonthsPaid >= maxMonthsToIterate && balance > 0.01) {
-            amortizationNoteEl.textContent = "Loan calculation exceeded maximum iterations. Please check inputs or prepayments. Loan might not be fully paid off.";
+            amortizationNoteEl.textContent = "Loan calculation exceeded maximum iterations. Please check inputs or adjustments. Loan might not be fully paid off.";
         }
 
         amortizationSectionDiv.style.display = 'block';
+        prepaymentSummaryDiv.style.display = 'block';
 
         // --- Display Adjusted Summary ---
         let totalAdjustedPayment = totalPrincipalPaidViaEMI + totalInterestPaidWithAdjustments + totalPrepaymentsSum;
         const interestSaved = originalTotalInterest - totalInterestPaidWithAdjustments;
-        const actualMoneySaved = interestSaved - totalPrepaymentsSum; // Net savings after accounting for money paid extra
+        const netMoneySaved = interestSaved - totalPrepaymentsSum; // Net savings after accounting for money paid extra
 
-        prepaymentSummaryDiv.style.display = 'block';
-
-        // Update labels and values based on outcome selection
         if (outcomeReduceTenure) {
             newTenureLabel.textContent = 'New Loan Tenure:';
             newTenureEl.textContent = `${actualMonthsPaid} months (${(actualMonthsPaid / 12).toFixed(1)} years)`;
@@ -327,18 +435,55 @@ document.addEventListener('DOMContentLoaded', () => {
         } else { // Reduce EMI
             newTenureLabel.textContent = 'Original Loan Tenure:';
             newTenureEl.textContent = `${originalTenureMonths} months (${tenureYears} years)`;
-            newEMILabel.textContent = 'Final Monthly EMI (if applicable):';
-            newEMIEl.textContent = formatCurrency(currentEMI); // Show the last calculated EMI
+            newEMILabel.textContent = 'Final Monthly EMI:'; // This will be the EMI in the last month
+            newEMIEl.textContent = formatCurrency(currentEMI);
+            // If loan ended prematurely due to prepayments in "reduce EMI" mode
+            if(actualMonthsPaid < originalTenureMonths) {
+                 newTenureLabel.textContent = 'Actual Loan Tenure:';
+                 newTenureEl.textContent = `${actualMonthsPaid} months (${(actualMonthsPaid / 12).toFixed(1)} years)`;
+                 amortizationNoteEl.textContent += " Loan paid off early due to prepayments, even in 'Reduce EMI' mode.";
+            }
         }
 
         newTotalInterestEl.textContent = formatCurrency(totalInterestPaidWithAdjustments);
         newTotalPaymentEl.textContent = formatCurrency(totalAdjustedPayment);
         interestSavedEl.textContent = formatCurrency(interestSaved);
-        moneySavedEl.textContent = formatCurrency(actualMoneySaved);
+        moneySavedEl.textContent = formatCurrency(netMoneySaved);
         totalPrepaymentsMadeEl.textContent = formatCurrency(totalPrepaymentsSum);
 
-        if (prepayGoalType !== 'none' && totalPrepaymentsSum === 0 && (lumpsumAmountInput.value || recurringAmountInput.value || interestPrepayAmountInput.value)) {
-            amortizationNoteEl.textContent += " Prepayment was specified but might not have been applied (e.g., month not reached, amount zero, or frequency mismatch).";
+
+        // --- Display Configured Adjustments Summary ---
+        configuredAdjustmentsSummaryDiv.style.display = 'block';
+        lumpsumSummaryList.innerHTML = '<h4>Lumpsum Prepayments:</h4>';
+        if (lumpsumEvents.length > 0) {
+            lumpsumEvents.forEach(e => {
+                const date = loanMonthToDate(loanStartMonthStr, e.month);
+                lumpsumSummaryList.innerHTML += `<p>₹ ${formatNumber(e.amount)} at Month ${e.month} (${date})</p>`;
+            });
+        } else {
+            lumpsumSummaryList.innerHTML += `<p>No lumpsum prepayments configured.</p>`;
+        }
+
+        recurringSummaryList.innerHTML = '<h4>Recurring Prepayments:</h4>';
+        if (recurringEvents.length > 0) {
+            recurringEvents.forEach(e => {
+                const startDate = loanMonthToDate(loanStartMonthStr, e.startMonth);
+                const endDate = e.endMonth && e.endMonth < originalTenureMonths * 2 ? loanMonthToDate(loanStartMonthStr, e.endMonth) : 'Loan End';
+                recurringSummaryList.innerHTML += `<p>₹ ${formatNumber(e.amount)} every ${e.frequency} months, from Month ${e.startMonth} (${startDate}) to Month ${e.endMonth || 'Loan End'} (${endDate})</p>`;
+            });
+        } else {
+            recurringSummaryList.innerHTML += `<p>No recurring prepayments configured.</p>`;
+        }
+
+        rateChangeSummaryList.innerHTML = '<h4>Interest Rate Changes:</h4>';
+        if (rateChangeEvents.length > 0) {
+            rateChangeEvents.forEach(e => {
+                const startDate = loanMonthToDate(loanStartMonthStr, e.startMonth);
+                const endDate = e.endMonth && e.endMonth < originalTenureMonths * 2 ? loanMonthToDate(loanStartMonthStr, e.endMonth) : 'Loan End';
+                rateChangeSummaryList.innerHTML += `<p>Rate changes to ${e.newRate * 12 * 100}% from Month ${e.startMonth} (${startDate}) to Month ${e.endMonth || 'Loan End'} (${endDate})</p>`;
+            });
+        } else {
+            rateChangeSummaryList.innerHTML += `<p>No interest rate changes configured.</p>`;
         }
     });
 
@@ -361,6 +506,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const principal = parseFloat(loanAmountInput.value);
         const annualInterestRate = parseFloat(interestRateInput.value);
         const tenureYears = parseFloat(loanTenureInput.value);
+        const loanStartMonthStr = loanStartMonthInput.value;
+        const loanStartMonthDate = new Date(loanStartMonthStr + '-01');
 
         if (isNaN(principal) || principal <= 0) {
             showError('Please enter a valid Loan Amount (greater than 0).'); isValid = false;
@@ -371,72 +518,89 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isNaN(tenureYears) || tenureYears <= 0) {
             showError('Please enter a valid Loan Tenure in Years (greater than 0).'); isValid = false;
         }
-
-        const maxMonths = 720; // 60 years max
-        if (tenureYears * 12 > maxMonths) {
-             showError(`Loan tenure cannot exceed ${maxMonths/12} years.`); isValid = false;
+        if (!loanStartMonthStr || isNaN(loanStartMonthDate.getTime())) {
+            showError('Please select a valid Loan Start Month.'); isValid = false;
         }
 
+        const maxMonths = 720; // 60 years max
+        const originalTenureMonths = tenureYears * 12;
+
+        if (originalTenureMonths > maxMonths) {
+             showError(`Loan tenure cannot exceed ${maxMonths/12} years.`); isValid = false;
+        }
 
         const prepayGoalType = document.querySelector('input[name="prepayGoalType"]:checked').value;
         const moneyPrepaymentMode = document.querySelector('input[name="moneyPrepaymentMode"]:checked')?.value || 'none';
 
         if (prepayGoalType === 'money') {
             if (moneyPrepaymentMode === 'lumpsum') {
-                const lumpsumAmount = parseFloat(lumpsumAmountInput.value);
-                const lumpsumMonth = parseInt(lumpsumMonthInput.value);
-                if (isNaN(lumpsumAmount) || lumpsumAmount <= 0) {
-                    showError('Please enter a valid Lumpsum Prepayment Amount (greater than 0).'); isValid = false;
-                }
-                if (isNaN(lumpsumMonth) || lumpsumMonth <= 0 || lumpsumMonth > tenureYears * 12) {
-                    showError(`Lumpsum Prepayment Month must be between 1 and ${tenureYears * 12}.`); isValid = false;
+                if (lumpsumEvents.length === 0 && lumpsumIdCounter === 1 && !document.getElementById('lumpsumAmount_1').value) {
+                    // No events added and default first row is empty, allow.
+                } else {
+                    document.querySelectorAll('.lumpsum-input-row').forEach(row => {
+                        const amount = parseFloat(row.querySelector('.lumpsum-amount').value);
+                        const monthStr = row.querySelector('.lumpsum-month').value;
+                        const month = dateToLoanMonth(monthStr, loanStartMonthStr);
+
+                        if (isNaN(amount) || amount <= 0) {
+                            showError('Lumpsum: Please enter a valid Amount (greater than 0).'); isValid = false;
+                        }
+                        if (month === null || month <= 0 || month > originalTenureMonths) {
+                            showError(`Lumpsum: Month must be between 1 and ${originalTenureMonths}.`); isValid = false;
+                        }
+                    });
                 }
             } else if (moneyPrepaymentMode === 'recurring') {
-                const recurringAmount = parseFloat(recurringAmountInput.value);
-                const recurringFrequency = parseInt(recurringFrequencySelect.value);
-                const recurringStartMonth = parseInt(recurringStartMonthInput.value);
-                const recurringEndMonth = parseInt(recurringEndMonthInput.value);
+                 if (recurringEvents.length === 0 && recurringIdCounter === 1 && !document.getElementById('recurringAmount_1').value) {
+                    // No events added and default first row is empty, allow.
+                } else {
+                    document.querySelectorAll('.recurring-input-row').forEach(row => {
+                        const amount = parseFloat(row.querySelector('.recurring-amount').value);
+                        const frequency = parseInt(row.querySelector('.recurring-frequency').value);
+                        const startMonthStr = row.querySelector('.recurring-start-month').value;
+                        const endMonthStr = row.querySelector('.recurring-end-month').value;
+                        const startMonth = dateToLoanMonth(startMonthStr, loanStartMonthStr);
+                        const endMonth = endMonthStr ? dateToLoanMonth(endMonthStr, loanStartMonthStr) : null;
 
-                if (isNaN(recurringAmount) || recurringAmount <= 0) {
-                    showError('Please enter a valid Recurring Prepayment Amount (greater than 0).'); isValid = false;
+                        if (isNaN(amount) || amount <= 0) {
+                            showError('Recurring: Please enter a valid Amount (greater than 0).'); isValid = false;
+                        }
+                        if (isNaN(frequency) || frequency <= 0) {
+                            showError('Recurring: Please select a valid Frequency.'); isValid = false;
+                        }
+                        if (startMonth === null || startMonth < 0 || startMonth > originalTenureMonths) {
+                            showError(`Recurring: Start Month must be between 0 and ${originalTenureMonths}.`); isValid = false;
+                        }
+                        if (endMonth !== null && (endMonth <= startMonth || endMonth > maxMonths)) {
+                            showError(`Recurring: End Month must be after Start Month and not exceed ${maxMonths} months.`); isValid = false;
+                        }
+                    });
                 }
-                if (isNaN(recurringFrequency) || recurringFrequency <= 0) {
-                    showError('Please select a valid Recurring Frequency.'); isValid = false;
-                }
-                if (isNaN(recurringStartMonth) || recurringStartMonth < 0 || recurringStartMonth > tenureYears * 12) {
-                    showError(`Recurring Prepayment Start Month must be between 0 and ${tenureYears * 12}.`); isValid = false;
-                }
-                if (!isNaN(recurringEndMonth) && (recurringEndMonth <= recurringStartMonth || recurringEndMonth > maxMonths)) {
-                    showError(`Recurring Prepayment End Month must be after Start Month and not exceed ${maxMonths} months.`); isValid = false;
-                }
-            }
-        } else if (prepayGoalType === 'interest') {
-             const interestPrepayAmount = parseFloat(interestPrepayAmountInput.value);
-             const interestPrepayStartMonth = parseInt(interestPrepayStartMonthInput.value);
-             const interestPrepayEndMonth = parseInt(interestPrepayEndMonthInput.value);
-
-            if (isNaN(interestPrepayAmount) || interestPrepayAmount <= 0) {
-                showError('Please enter a valid Additional Amount for Interest Reduction (greater than 0).'); isValid = false;
-            }
-            if (isNaN(interestPrepayStartMonth) || interestPrepayStartMonth < 0 || interestPrepayStartMonth > tenureYears * 12) {
-                showError(`Interest Prepayment Start Month must be between 0 and ${tenureYears * 12}.`); isValid = false;
-            }
-            if (!isNaN(interestPrepayEndMonth) && (interestPrepayEndMonth <= interestPrepayStartMonth || interestPrepayEndMonth > maxMonths)) {
-                showError(`Interest Prepayment End Month must be after Start Month and not exceed ${maxMonths} months.`); isValid = false;
             }
         }
+        
+        if (rateChangeEvents.length === 0 && rateChangeIdCounter === 1 && !document.getElementById('newInterestRate_1').value) {
+            // No events added and default first row is empty, allow.
+        } else {
+            document.querySelectorAll('.rate-change-input-row').forEach(row => {
+                const newRate = parseFloat(row.querySelector('.new-interest-rate').value);
+                const startMonthStr = row.querySelector('.rate-change-start-month').value;
+                const endMonthStr = row.querySelector('.rate-change-end-month').value;
+                const startMonth = dateToLoanMonth(startMonthStr, loanStartMonthStr);
+                const endMonth = endMonthStr ? dateToLoanMonth(endMonthStr, loanStartMonthStr) : null;
 
-        const enableRateChange = enableRateChangeCheckbox.checked;
-        if (enableRateChange) {
-            const newInterestRate = parseFloat(newInterestRateInput.value);
-            const rateChangeMonth = parseInt(rateChangeMonthInput.value);
-            if (isNaN(newInterestRate) || newInterestRate < 0) {
-                showError('Please enter a valid New Annual Interest Rate (0 or greater).'); isValid = false;
-            }
-            if (isNaN(rateChangeMonth) || rateChangeMonth <= 0 || rateChangeMonth > tenureYears * 12) {
-                showError(`Interest Rate Change Month must be between 1 and ${tenureYears * 12}.`); isValid = false;
-            }
+                if (isNaN(newRate) || newRate < 0) {
+                    showError('Rate Change: Please enter a valid New Annual Interest Rate (0 or greater).'); isValid = false;
+                }
+                if (startMonth === null || startMonth <= 0 || startMonth > originalTenureMonths) {
+                    showError(`Rate Change: Start Month must be between 1 and ${originalTenureMonths}.`); isValid = false;
+                }
+                 if (endMonth !== null && (endMonth <= startMonth || endMonth > maxMonths)) {
+                    showError(`Rate Change: End Month must be after Start Month and not exceed ${maxMonths} months.`); isValid = false;
+                }
+            });
         }
+
 
         return isValid;
     }
@@ -448,6 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
         amortizationSectionDiv.style.display = 'none';
         amortizationTableBody.innerHTML = '';
         amortizationNoteEl.textContent = '';
+        configuredAdjustmentsSummaryDiv.style.display = 'none'; // Clear new summary section
     }
 
     function showError(message) {
@@ -463,7 +628,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return `₹ ${numAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
 
-    // Initial display states
+    function formatNumber(amount) { // For display in summary without currency symbol
+        const numAmount = Number(amount);
+        if (isNaN(numAmount)) {
+            return `0`;
+        }
+        return `${numAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+
+    // --- Initial UI setup ---
     prepayGoalNoneRadio.dispatchEvent(new Event('change')); // Initialize UI
     prepayLumpsumRadio.dispatchEvent(new Event('change')); // Initialize money mode UI
+
+    // Set default loan start month to current month if not set
+    if (!loanStartMonthInput.value) {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = (today.getMonth() + 1).toString().padStart(2, '0');
+        loanStartMonthInput.value = `${year}-${month}`;
+    }
+
 });
