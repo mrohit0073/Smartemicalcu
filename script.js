@@ -2,7 +2,8 @@
 document.getElementById('emiForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const P = parseFloat(document.getElementById('loanAmount').value);
-  const R = parseFloat(document.getElementById('interestRate').value) / 12 / 100;
+  const initialRate = parseFloat(document.getElementById('interestRate').value);
+  let R = initialRate / 12 / 100;
   const N = parseInt(document.getElementById('loanTenure').value);
   const prepayType = document.getElementById('prepaymentType').value;
   const prepayValue = parseFloat(document.getElementById('prepaymentValue').value) || 0;
@@ -23,15 +24,18 @@ document.getElementById('emiForm').addEventListener('submit', function(e) {
     let principal = emi - interest;
 
     if (month >= prepayStart && month <= prepayEnd) {
-      if (frequency === "monthly" || 
-         (frequency === "quarterly" && month % 3 === 0) ||
-         (frequency === "halfyearly" && month % 6 === 0) ||
-         (frequency === "yearly" && month % 12 === 0) ||
-         (frequency === "once" && month === prepayStart)) {
-        if (prepayType === "amount") balance -= prepayValue;
-        if (prepayType === "interest") {
-          let newRate = R * 12 * 100 - prepayValue;
-          R = newRate / 12 / 100;
+      let shouldPrepay = (frequency === "monthly") ||
+                         (frequency === "quarterly" && month % 3 === 0) ||
+                         (frequency === "halfyearly" && month % 6 === 0) ||
+                         (frequency === "yearly" && month % 12 === 0) ||
+                         (frequency === "once" && month === prepayStart);
+
+      if (shouldPrepay) {
+        if (prepayType === "amount") {
+          balance -= prepayValue;
+        } else if (prepayType === "interest") {
+          const newAnnualRate = initialRate - prepayValue;
+          R = newAnnualRate / 12 / 100;
           emi = balance * R * Math.pow(1 + R, N - month) / (Math.pow(1 + R, N - month) - 1);
         }
       }
