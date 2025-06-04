@@ -95,3 +95,13 @@ function exportToPDF() {
   pdf.autoTable({ html: '#schedule', startY: 20 });
   pdf.save("EMI_Schedule.pdf");
 }
+
+function handlePrepaymentTypeChange(select) {
+  const fs = select.closest("fieldset");
+  const freqWrapper = fs.querySelector(".frequencyWrapper");
+  if (select.value === "interest") {
+    freqWrapper.style.display = "none";
+  } else {
+    freqWrapper.style.display = "block";
+  }
+}
