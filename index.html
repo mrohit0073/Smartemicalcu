@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced EMI Calculator with Prepayment & Rate Change</title>
+    <title>Advanced EMI Calculator with Multiple Prepayments & Rate Changes</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -25,19 +25,22 @@
                 <label for="loanTenure">Loan Tenure (Years):</label>
                 <input type="number" id="loanTenure" placeholder="e.g., 10" value="10">
             </div>
+            <div class="input-group">
+                <label for="loanStartMonth">Loan Start Month:</label>
+                <input type="month" id="loanStartMonth" value="2025-01">
+                <small>Select the starting month of your loan.</small>
+            </div>
         </div>
 
         <div class="prepayment-section">
-            <h2>Prepayment & Loan Adjustment Options</h2>
+            <h2>Prepayment Options</h2>
             <div class="input-group">
-                <label>Choose Prepayment Type:</label>
+                <label>Prepayment Type:</label>
                 <div class="radio-group">
                     <input type="radio" id="prepayGoalNone" name="prepayGoalType" value="none" checked>
                     <label for="prepayGoalNone">None</label>
                     <input type="radio" id="prepayGoalMoney" name="prepayGoalType" value="money">
-                    <label for="prepayGoalMoney">Money</label>
-                    <input type="radio" id="prepayGoalInterest" name="prepayGoalType" value="interest">
-                    <label for="prepayGoalInterest">Interest (Recurring)</label>
+                    <label for="prepayGoalMoney">Money (Lumpsum / Recurring)</label>
                 </div>
             </div>
 
@@ -53,89 +56,88 @@
                     </div>
                 </div>
 
-                <div id="lumpsumPrepaymentFields" class="nested-fields">
-                    <div class="input-group">
-                        <label for="lumpsumAmount">Lumpsum Prepayment Amount (₹):</label>
-                        <input type="number" id="lumpsumAmount" placeholder="e.g., 50000">
+                <div id="lumpsumSection" class="nested-fields">
+                    <h4>Lumpsum Prepayments</h4>
+                    <div id="lumpsumPrepaymentContainer">
+                        <div class="lumpsum-input-row" data-id="1">
+                            <div class="input-group">
+                                <label for="lumpsumAmount_1">Amount (₹):</label>
+                                <input type="number" id="lumpsumAmount_1" class="lumpsum-amount" placeholder="e.g., 50000">
+                            </div>
+                            <div class="input-group">
+                                <label for="lumpsumMonth_1">Month:</label>
+                                <input type="month" id="lumpsumMonth_1" class="lumpsum-month">
+                            </div>
+                            <button type="button" class="remove-btn" style="display:none;">Remove</button>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label for="lumpsumMonth">Prepay After Month #:</label>
-                        <input type="number" id="lumpsumMonth" placeholder="e.g., 12">
-                    </div>
+                    <button type="button" id="addLumpsumBtn" class="add-event-btn">Add Another Lumpsum Prepayment</button>
                 </div>
 
-                <div id="recurringPrepaymentFields" class="nested-fields" style="display: none;">
-                    <div class="input-group">
-                        <label for="recurringAmount">Recurring Prepayment Amount (₹):</label>
-                        <input type="number" id="recurringAmount" placeholder="e.g., 20000">
+                <div id="recurringSection" class="nested-fields" style="display: none;">
+                    <h4>Recurring Prepayments</h4>
+                    <div id="recurringPrepaymentContainer">
+                        <div class="recurring-input-row" data-id="1">
+                            <div class="input-group">
+                                <label for="recurringAmount_1">Amount (₹):</label>
+                                <input type="number" id="recurringAmount_1" class="recurring-amount" placeholder="e.g., 2000">
+                            </div>
+                            <div class="input-group">
+                                <label for="recurringFrequency_1">Frequency:</label>
+                                <select id="recurringFrequency_1" class="recurring-frequency">
+                                    <option value="12">Annually (every 12 months)</option>
+                                    <option value="6">Semi-Annually (every 6 months)</option>
+                                    <option value="3">Quarterly (every 3 months)</option>
+                                    <option value="1">Monthly (every month)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="recurringStartMonth_1">Start Month:</label>
+                                <input type="month" id="recurringStartMonth_1" class="recurring-start-month">
+                            </div>
+                             <div class="input-group">
+                                <label for="recurringEndMonth_1">End Month:</label>
+                                <input type="month" id="recurringEndMonth_1" class="recurring-end-month">
+                                <small>Leave empty to continue until loan ends.</small>
+                            </div>
+                            <button type="button" class="remove-btn" style="display:none;">Remove</button>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label for="recurringFrequency">Frequency:</label>
-                        <select id="recurringFrequency">
-                            <option value="12">Annually (every 12 months)</option>
-                            <option value="6">Semi-Annually (every 6 months)</option>
-                            <option value="3">Quarterly (every 3 months)</option>
-                            <option value="1">Monthly (every month)</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label for="recurringStartMonth">Start Recurring Prepayment After Month #:</label>
-                        <input type="number" id="recurringStartMonth" placeholder="e.g., 0 or 12" value="0">
-                        <small>Enter 0 to start from the first possible instance of chosen frequency.</small>
-                    </div>
-                     <div class="input-group">
-                        <label for="recurringEndMonth">End Recurring Prepayment After Month #:</label>
-                        <input type="number" id="recurringEndMonth" placeholder="e.g., 60 (or leave empty for loan end)">
-                        <small>Leave empty to continue until loan ends. Max loan tenure is used if empty.</small>
-                    </div>
-                </div>
-            </div> <div id="interestPrepaymentOptions" class="prepayment-fields" style="display: none;">
-                <h3>Interest Prepayment Details (Recurring)</h3>
-                <div class="input-group">
-                    <label for="interestPrepayAmount">Additional Amount to Pay for Interest Reduction (₹/month):</label>
-                    <input type="number" id="interestPrepayAmount" placeholder="e.g., 1000">
-                    <small>This amount will be added monthly to principal repayment to accelerate interest reduction.</small>
-                </div>
-                 <div class="input-group">
-                    <label for="interestPrepayStartMonth">Start Interest Prepayment After Month #:</label>
-                    <input type="number" id="interestPrepayStartMonth" placeholder="e.g., 0 or 12" value="0">
-                    <small>Enter 0 to start from the beginning.</small>
-                </div>
-                 <div class="input-group">
-                    <label for="interestPrepayEndMonth">End Interest Prepayment After Month #:</label>
-                    <input type="number" id="interestPrepayEndMonth" placeholder="e.g., 60 (or leave empty for loan end)">
-                    <small>Leave empty to continue until loan ends.</small>
+                    <button type="button" id="addRecurringBtn" class="add-event-btn">Add Another Recurring Prepayment</button>
                 </div>
             </div> <div class="rate-change-section prepayment-fields">
-                <h3>Interest Rate Change Options</h3>
-                <div class="input-group">
-                    <input type="checkbox" id="enableRateChange">
-                    <label for="enableRateChange">Enable Interest Rate Change</label>
-                </div>
-
-                <div id="rateChangeFields" class="nested-fields" style="display: none;">
-                    <div class="input-group">
-                        <label for="newInterestRate">New Annual Interest Rate (%):</label>
-                        <input type="number" id="newInterestRate" placeholder="e.g., 9.0">
+                <h3>Interest Rate Changes</h3>
+                <div id="rateChangeContainer">
+                    <div class="rate-change-input-row" data-id="1">
+                        <div class="input-group">
+                            <label for="newInterestRate_1">New Annual Interest Rate (%):</label>
+                            <input type="number" id="newInterestRate_1" class="new-interest-rate" placeholder="e.g., 9.0">
+                        </div>
+                        <div class="input-group">
+                            <label for="rateChangeStartMonth_1">Start Month:</label>
+                            <input type="month" id="rateChangeStartMonth_1" class="rate-change-start-month">
+                        </div>
+                        <div class="input-group">
+                            <label for="rateChangeEndMonth_1">End Month:</label>
+                            <input type="month" id="rateChangeEndMonth_1" class="rate-change-end-month">
+                            <small>Leave empty to continue until loan ends. Rate reverts to original after this month.</small>
+                        </div>
+                        <button type="button" class="remove-btn" style="display:none;">Remove</button>
                     </div>
-                    <div class="input-group">
-                        <label for="rateChangeMonth">Effective After Month #:</label>
-                        <input type="number" id="rateChangeMonth" placeholder="e.g., 24 (after 2 years)">
-                    </div>
                 </div>
+                <button type="button" id="addRateChangeBtn" class="add-event-btn">Add Another Interest Rate Change</button>
             </div> </div> <div class="output-options-section">
             <h2>Desired Loan Outcome</h2>
             <div class="input-group">
                 <label>Impact of Prepayment/Rate Change:</label>
                 <div class="radio-group">
                     <input type="radio" id="outcomeReduceTenure" name="outcomeType" value="reduceTenure" checked>
-                    <label for="outcomeReduceTenure">Reduce Loan Tenure (EMI stays same)</label>
+                    <label for="outcomeReduceTenure">Reduce Loan Tenure (EMI stays original)</label>
                     <input type="radio" id="outcomeReduceEMI" name="outcomeType" value="reduceEMI">
                     <label for="outcomeReduceEMI">Reduce Monthly EMI (Tenure stays original)</label>
                 </div>
             </div>
         </div>
-
 
         <button id="calculateBtn">Calculate</button>
 
@@ -153,7 +155,7 @@
                 <h3>With Adjustments:</h3>
                 <div class="summary-grid">
                     <div><p id="newTenureLabel">New Loan Tenure:</p><strong id="newTenure" class="result-value"></strong></div>
-                    <div><p id="newEMILabel">Revised Monthly EMI (if applicable):</p><strong id="newEMI" class="result-value"></strong></div>
+                    <div><p id="newEMILabel">Final Monthly EMI (if applicable):</p><strong id="newEMI" class="result-value"></strong></div>
                     <div><p>Total Interest Paid:</p><strong id="newTotalInterest" class="result-value"></strong></div>
                     <div><p>Total Amount Paid:</p><strong id="newTotalPayment" class="result-value"></strong></div>
                     <div><p>Interest Saved:</p><strong id="interestSaved" class="result-value highlight-saved"></strong></div>
@@ -161,6 +163,13 @@
                     <div><p>Total Prepayments Made:</p><strong id="totalPrepaymentsMade" class="result-value"></strong></div>
                 </div>
             </div>
+        </div>
+
+        <div id="configuredAdjustmentsSummary" class="results-container" style="display: none;">
+            <h2>Configured Adjustments:</h2>
+            <div id="lumpsumSummaryList"></div>
+            <div id="recurringSummaryList"></div>
+            <div id="rateChangeSummaryList"></div>
         </div>
 
         <div id="amortizationSection" style="display: none;">
