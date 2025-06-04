@@ -5,7 +5,7 @@ body {
     align-items: flex-start;
     min-height: 100vh;
     margin: 0;
-    padding: 30px 15px; /* Added horizontal padding */
+    padding: 30px 15px;
     background-color: #eef1f5;
     color: #333;
     font-size: 16px;
@@ -17,18 +17,18 @@ body {
     border-radius: 12px;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     width: 100%;
-    max-width: 850px; /* Wider for more details */
+    max-width: 900px; /* Slightly wider for new options */
 }
 
 h1, h2, h3 {
     color: #1a3b5d;
-    text-align: center; /* Center main headings */
+    text-align: center;
 }
 h1 { margin-bottom: 30px; font-size: 2em; font-weight: 600; }
 h2 { margin-top: 30px; margin-bottom: 20px; font-size: 1.6em; border-bottom: 2px solid #dbe3eb; padding-bottom: 10px; text-align: left;}
 h3 { margin-top: 20px; margin-bottom: 15px; font-size: 1.3em; color: #2c5079; text-align: left; }
 
-.input-section, .prepayment-section {
+.input-section, .prepayment-section, .output-options-section {
     margin-bottom: 25px;
 }
 
@@ -37,13 +37,19 @@ h3 { margin-top: 20px; margin-bottom: 15px; font-size: 1.3em; color: #2c5079; te
     text-align: left;
 }
 
-.input-group label, label[for^="prepay"] {
+.input-group label, label[for^="prepay"], label[for^="outcome"] {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
     color: #4a6a8a;
 }
-label[for^="prepay"] { display: inline-block; margin-right: 15px; margin-left: 5px; font-weight: normal;}
+label[for^="prepay"], label[for^="outcome"] {
+    display: inline-block;
+    margin-right: 15px;
+    margin-left: 5px;
+    font-weight: normal;
+    vertical-align: middle;
+}
 
 
 .input-group input[type="number"],
@@ -56,7 +62,7 @@ label[for^="prepay"] { display: inline-block; margin-right: 15px; margin-left: 5
     box-sizing: border-box;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-.input-group select { width: 100%; } /* Select full width */
+.input-group select { width: 100%; }
 
 .input-group input[type="number"]:focus,
 .input-group select:focus {
@@ -82,10 +88,19 @@ label[for^="prepay"] { display: inline-block; margin-right: 15px; margin-left: 5
     border-radius: 6px;
     background-color: #f8f9fa;
 }
-.prepayment-fields .input-group {
-    margin-bottom: 15px; /* Smaller margin inside these groups */
+
+.nested-fields { /* For lumpsum/recurring fields under money, or rate change fields */
+    padding: 15px;
+    margin-top: 10px;
+    border: 1px dashed #dbe3eb; /* Lighter dashed border for nesting */
+    border-radius: 6px;
+    background-color: #ffffff; /* Lighter background for nesting */
 }
-.prepayment-fields .input-group:last-child {
+
+.prepayment-fields .input-group, .nested-fields .input-group {
+    margin-bottom: 15px;
+}
+.prepayment-fields .input-group:last-child, .nested-fields .input-group:last-child {
     margin-bottom: 0;
 }
 
@@ -100,10 +115,10 @@ button#calculateBtn {
     font-size: 1.1em;
     font-weight: 500;
     transition: background-color 0.3s ease, transform 0.1s ease;
-    display: block; /* Make button block to center it */
+    display: block;
     width: auto;
     min-width: 200px;
-    margin: 20px auto 0 auto; /* Center button */
+    margin: 20px auto 0 auto;
 }
 button#calculateBtn:hover { background-color: #0056b3; }
 button#calculateBtn:active { transform: scale(0.98); }
@@ -118,31 +133,27 @@ button#calculateBtn:active { transform: scale(0.98); }
 }
 .results-container p {
     margin: 8px 0;
-    font-size: 1.0em; /* Slightly smaller for more items */
+    font-size: 1.0em;
     color: #333;
 }
 .results-container strong.result-value {
     font-weight: 600;
     color: #0056b3;
-    float: right; /* Align values to the right */
+    float: right;
 }
-.results-container p::after { /* Clearfix for floated strong */
+.results-container p::after {
     content: "";
     clear: both;
     display: table;
 }
 .summary-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Default to 1 column */
-    gap: 5px 20px; /* Row gap, Column gap */
+    grid-template-columns: 1fr;
+    gap: 5px 20px;
 }
-/* Use 2 columns for summary if space allows */
 @media (min-width: 600px) {
     .summary-grid {
         grid-template-columns: 1fr 1fr;
-    }
-     .summary-grid div:nth-last-child(-n+2):nth-child(odd) { /* If last two items are odd, make them span full width */
-        /* This selector is a bit tricky, might need specific classes if layout is complex */
     }
 }
 
@@ -154,7 +165,7 @@ button#calculateBtn:active { transform: scale(0.98); }
     margin: 20px 0;
 }
 .highlight-saved {
-    color: #28a745 !important; /* Green for savings */
+    color: #28a745 !important;
     font-weight: bold;
 }
 
@@ -182,8 +193,8 @@ th, td {
     border: 1px solid #e0e0e0;
     padding: 10px 12px;
     text-align: right;
-    font-size: 0.9em; /* Smaller font for more columns */
-    white-space: nowrap; /* Prevent wrapping in cells */
+    font-size: 0.9em;
+    white-space: nowrap;
 }
 th {
     background-color: #f0f4f8;
@@ -197,3 +208,9 @@ td:first-child, th:first-child { text-align: center; }
 tbody tr:nth-child(even) { background-color: #f9f9f9; }
 tbody tr:hover { background-color: #e9ecef; }
 small { font-size: 0.85em; color: #555; display: block; margin-top: 4px;}
+
+/* Add styling for the new outcome section */
+.output-options-section .radio-group label {
+    font-weight: normal;
+    margin-right: 30px; /* More space between these options */
+}
