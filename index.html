@@ -27,71 +27,115 @@
             </div>
         </div>
 
-        <div class="rate-change-section">
-            <h2>Interest Rate Change Options</h2>
-            <div class="input-group">
-                <input type="checkbox" id="enableRateChange">
-                <label for="enableRateChange">Enable Interest Rate Change</label>
-            </div>
-
-            <div id="rateChangeFields" class="prepayment-fields" style="display: none;">
-                <div class="input-group">
-                    <label for="newInterestRate">New Annual Interest Rate (%):</label>
-                    <input type="number" id="newInterestRate" placeholder="e.g., 9.0">
-                </div>
-                <div class="input-group">
-                    <label for="rateChangeMonth">Effective After Month #:</label>
-                    <input type="number" id="rateChangeMonth" placeholder="e.g., 24 (after 2 years)">
-                </div>
-            </div>
-        </div>
-
         <div class="prepayment-section">
-            <h2>Prepayment Options</h2>
+            <h2>Prepayment & Loan Adjustment Options</h2>
             <div class="input-group">
-                <label>Prepayment Type:</label>
+                <label>Choose Prepayment Type:</label>
                 <div class="radio-group">
-                    <input type="radio" id="prepayNone" name="prepaymentType" value="none" checked>
-                    <label for="prepayNone">None</label>
-                    <input type="radio" id="prepayLumpsum" name="prepaymentType" value="lumpsum">
-                    <label for="prepayLumpsum">Lumpsum</label>
-                    <input type="radio" id="prepayRecurring" name="prepaymentType" value="recurring">
-                    <label for="prepayRecurring">Recurring</label>
+                    <input type="radio" id="prepayGoalNone" name="prepayGoalType" value="none" checked>
+                    <label for="prepayGoalNone">None</label>
+                    <input type="radio" id="prepayGoalMoney" name="prepayGoalType" value="money">
+                    <label for="prepayGoalMoney">Money</label>
+                    <input type="radio" id="prepayGoalInterest" name="prepayGoalType" value="interest">
+                    <label for="prepayGoalInterest">Interest (Recurring)</label>
                 </div>
             </div>
 
-            <div id="lumpsumPrepaymentFields" class="prepayment-fields" style="display: none;">
+            <div id="moneyPrepaymentOptions" class="prepayment-fields" style="display: none;">
+                <h3>Money Prepayment Details</h3>
                 <div class="input-group">
-                    <label for="lumpsumAmount">Lumpsum Prepayment Amount (₹):</label>
-                    <input type="number" id="lumpsumAmount" placeholder="e.g., 50000">
+                    <label>Money Prepayment Mode:</label>
+                    <div class="radio-group">
+                        <input type="radio" id="prepayLumpsum" name="moneyPrepaymentMode" value="lumpsum" checked>
+                        <label for="prepayLumpsum">Lumpsum</label>
+                        <input type="radio" id="prepayRecurring" name="moneyPrepaymentMode" value="recurring">
+                        <label for="prepayRecurring">Recurring</label>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label for="lumpsumMonth">Prepay After Month #:</label>
-                    <input type="number" id="lumpsumMonth" placeholder="e.g., 12 (after 1st year)">
-                </div>
-            </div>
 
-            <div id="recurringPrepaymentFields" class="prepayment-fields" style="display: none;">
-                <div class="input-group">
-                    <label for="recurringAmount">Recurring Prepayment Amount (₹):</label>
-                    <input type="number" id="recurringAmount" placeholder="e.g., 20000">
+                <div id="lumpsumPrepaymentFields" class="nested-fields">
+                    <div class="input-group">
+                        <label for="lumpsumAmount">Lumpsum Prepayment Amount (₹):</label>
+                        <input type="number" id="lumpsumAmount" placeholder="e.g., 50000">
+                    </div>
+                    <div class="input-group">
+                        <label for="lumpsumMonth">Prepay After Month #:</label>
+                        <input type="number" id="lumpsumMonth" placeholder="e.g., 12">
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label for="recurringFrequency">Frequency:</label>
-                    <select id="recurringFrequency">
-                        <option value="12">Annually (after every 12th EMI)</option>
-                        <option value="6">Semi-Annually (after every 6th EMI)</option>
-                        <option value="3">Quarterly (after every 3rd EMI)</option>
-                        <option value="1">Monthly (with every EMI)</option>
-                    </select>
+
+                <div id="recurringPrepaymentFields" class="nested-fields" style="display: none;">
+                    <div class="input-group">
+                        <label for="recurringAmount">Recurring Prepayment Amount (₹):</label>
+                        <input type="number" id="recurringAmount" placeholder="e.g., 20000">
+                    </div>
+                    <div class="input-group">
+                        <label for="recurringFrequency">Frequency:</label>
+                        <select id="recurringFrequency">
+                            <option value="12">Annually (every 12 months)</option>
+                            <option value="6">Semi-Annually (every 6 months)</option>
+                            <option value="3">Quarterly (every 3 months)</option>
+                            <option value="1">Monthly (every month)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="recurringStartMonth">Start Recurring Prepayment After Month #:</label>
+                        <input type="number" id="recurringStartMonth" placeholder="e.g., 0 or 12" value="0">
+                        <small>Enter 0 to start from the first possible instance of chosen frequency.</small>
+                    </div>
+                     <div class="input-group">
+                        <label for="recurringEndMonth">End Recurring Prepayment After Month #:</label>
+                        <input type="number" id="recurringEndMonth" placeholder="e.g., 60 (or leave empty for loan end)">
+                        <small>Leave empty to continue until loan ends. Max loan tenure is used if empty.</small>
+                    </div>
                 </div>
+            </div> <div id="interestPrepaymentOptions" class="prepayment-fields" style="display: none;">
+                <h3>Interest Prepayment Details (Recurring)</h3>
                 <div class="input-group">
-                    <label for="recurringStartMonth">Start Recurring Prepayment After Month #:</label>
-                    <input type="number" id="recurringStartMonth" placeholder="e.g., 0 or 12" value="0">
-                    <small>Enter 0 to start from the first possible instance of chosen frequency.</small>
+                    <label for="interestPrepayAmount">Additional Amount to Pay for Interest Reduction (₹/month):</label>
+                    <input type="number" id="interestPrepayAmount" placeholder="e.g., 1000">
+                    <small>This amount will be added monthly to principal repayment to accelerate interest reduction.</small>
+                </div>
+                 <div class="input-group">
+                    <label for="interestPrepayStartMonth">Start Interest Prepayment After Month #:</label>
+                    <input type="number" id="interestPrepayStartMonth" placeholder="e.g., 0 or 12" value="0">
+                    <small>Enter 0 to start from the beginning.</small>
+                </div>
+                 <div class="input-group">
+                    <label for="interestPrepayEndMonth">End Interest Prepayment After Month #:</label>
+                    <input type="number" id="interestPrepayEndMonth" placeholder="e.g., 60 (or leave empty for loan end)">
+                    <small>Leave empty to continue until loan ends.</small>
+                </div>
+            </div> <div class="rate-change-section prepayment-fields">
+                <h3>Interest Rate Change Options</h3>
+                <div class="input-group">
+                    <input type="checkbox" id="enableRateChange">
+                    <label for="enableRateChange">Enable Interest Rate Change</label>
+                </div>
+
+                <div id="rateChangeFields" class="nested-fields" style="display: none;">
+                    <div class="input-group">
+                        <label for="newInterestRate">New Annual Interest Rate (%):</label>
+                        <input type="number" id="newInterestRate" placeholder="e.g., 9.0">
+                    </div>
+                    <div class="input-group">
+                        <label for="rateChangeMonth">Effective After Month #:</label>
+                        <input type="number" id="rateChangeMonth" placeholder="e.g., 24 (after 2 years)">
+                    </div>
+                </div>
+            </div> </div> <div class="output-options-section">
+            <h2>Desired Loan Outcome</h2>
+            <div class="input-group">
+                <label>Impact of Prepayment/Rate Change:</label>
+                <div class="radio-group">
+                    <input type="radio" id="outcomeReduceTenure" name="outcomeType" value="reduceTenure" checked>
+                    <label for="outcomeReduceTenure">Reduce Loan Tenure (EMI stays same)</label>
+                    <input type="radio" id="outcomeReduceEMI" name="outcomeType" value="reduceEMI">
+                    <label for="outcomeReduceEMI">Reduce Monthly EMI (Tenure stays original)</label>
                 </div>
             </div>
         </div>
+
 
         <button id="calculateBtn">Calculate</button>
 
@@ -106,18 +150,18 @@
             </div>
             <div id="prepaymentSummary" style="display:none;">
                 <hr class="summary-hr">
-                <h3>With Prepayment & Rate Change:</h3>
+                <h3>With Adjustments:</h3>
                 <div class="summary-grid">
-                    <div><p>New Loan Tenure:</p><strong id="newTenure" class="result-value"></strong></div>
+                    <div><p id="newTenureLabel">New Loan Tenure:</p><strong id="newTenure" class="result-value"></strong></div>
+                    <div><p id="newEMILabel">Revised Monthly EMI (if applicable):</p><strong id="newEMI" class="result-value"></strong></div>
                     <div><p>Total Interest Paid:</p><strong id="newTotalInterest" class="result-value"></strong></div>
                     <div><p>Total Amount Paid:</p><strong id="newTotalPayment" class="result-value"></strong></div>
                     <div><p>Interest Saved:</p><strong id="interestSaved" class="result-value highlight-saved"></strong></div>
-                    <div><p>Money Saved (Interest - Prepayments):</p><strong id="moneySaved" class="result-value highlight-saved"></strong></div>
+                    <div><p>Net Savings (Interest Saved - Prepayments):</p><strong id="moneySaved" class="result-value highlight-saved"></strong></div>
                     <div><p>Total Prepayments Made:</p><strong id="totalPrepaymentsMade" class="result-value"></strong></div>
                 </div>
             </div>
         </div>
-
 
         <div id="amortizationSection" style="display: none;">
             <h2>Amortization Schedule:</h2>
@@ -131,7 +175,7 @@
                             <th>Interest (I)</th>
                             <th>Prepayment</th>
                             <th>Total Payment</th>
-                            <th>EMI (Base)</th>
+                            <th>Current EMI</th>
                             <th>Outstanding Balance</th>
                         </tr>
                     </thead>
