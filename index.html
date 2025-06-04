@@ -1,0 +1,25 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart EMI Calculator Clone</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>EMI Calculator with Prepayment</h1>
+    <form id="emiForm">
+      <label>Loan Amount (₹): <input type="number" id="loanAmount" required /></label>
+      <label>Interest Rate (% per annum): <input type="number" step="0.01" id="interestRate" required /></label>
+      <label>Loan Tenure (months): <input type="number" id="loanTenure" required /></label>
+      <label>Prepayment Amount (₹): <input type="number" id="prepaymentAmount" /></label>
+      <label>Prepayment Month: <input type="number" id="prepaymentMonth" /></label>
+      <button type="submit">Calculate EMI</button>
+    </form>
+    <div id="result"></div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
