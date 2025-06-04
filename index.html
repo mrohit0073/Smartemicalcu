@@ -1,48 +1,61 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Advanced EMI Calculator</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Smart EMI Calculator (Advanced)</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Advanced EMI Calculator</h1>
-    <form id="emiForm">
-      <label>Loan Amount (₹): <input type="number" id="loanAmount" required /></label>
-      <label>Interest Rate (% p.a.): <input type="number" step="0.01" id="interestRate" required /></label>
-      <label>Loan Tenure (months): <input type="number" id="loanTenure" required /></label>
-      <label>Prepayment Type:
-        <select id="prepaymentType">
-          <option value="amount">By Money</option>
-          <option value="interest">By Interest Rate Change</option>
-        </select>
-      </label>
-      <label>Prepayment Value: <input type="number" id="prepaymentValue" /></label>
-      <label>Prepayment Frequency:
-        <select id="frequency">
-          <option value="once">One-time</option>
-          <option value="monthly">Monthly</option>
-          <option value="quarterly">Quarterly</option>
-          <option value="halfyearly">Half-Yearly</option>
-          <option value="yearly">Yearly</option>
-        </select>
-      </label>
-      <label>Prepay From Month: <input type="number" id="prepayStart" /></label>
-      <label>Prepay To Month: <input type="number" id="prepayEnd" /></label>
-      <label>Adjust: 
-        <select id="adjustType">
-          <option value="tenure">Reduce Tenure</option>
-          <option value="emi">Reduce EMI</option>
-        </select>
-      </label>
-      <button type="submit">Calculate</button>
-    </form>
-    <div id="result"></div>
-    <div id="scheduleTable"></div>
-  </div>
+  <h1>Smart EMI Calculator (Advanced)</h1>
+  <form id="emiForm">
+    <label>Loan Amount: <input type="number" id="loanAmount" required></label>
+    <label>Interest Rate (%): <input type="number" step="0.01" id="interestRate" required></label>
+    <label>Loan Tenure (Months): <input type="number" id="loanTenure" required></label>
+
+    <div id="prepaymentsContainer">
+      <fieldset>
+        <legend>Prepayment Option 1</legend>
+        <label>Type:
+          <select class="prepaymentType">
+            <option value="amount">Money</option>
+            <option value="interest">Interest</option>
+          </select>
+        </label>
+        <label>Value: <input type="number" step="0.01" class="prepaymentValue"></label>
+        <label>Frequency:
+          <select class="frequency">
+            <option value="once">Once</option>
+            <option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option>
+            <option value="halfyearly">Half-yearly</option>
+            <option value="yearly">Yearly</option>
+          </select>
+        </label>
+        <label>Start (Month): <input type="number" class="prepayStart"></label>
+        <label>End (Month): <input type="number" class="prepayEnd"></label>
+      </fieldset>
+    </div>
+
+    <button type="button" onclick="addPrepayment()">+ Add Another Prepayment</button>
+
+    <label>Adjust:
+      <select id="adjustType">
+        <option value="tenure">Reduce Tenure</option>
+        <option value="emi">Reduce EMI</option>
+      </select>
+    </label>
+
+    <button type="submit">Calculate</button>
+  </form>
+
+  <div id="result"></div>
+  <div id="scheduleTable"></div>
+
+  <button onclick="exportToExcel()">Export to Excel</button>
+  <button onclick="exportToPDF()">Export to PDF</button>
+
   <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
-</html>
+</html> 
