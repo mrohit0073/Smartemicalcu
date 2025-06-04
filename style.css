@@ -2,87 +2,96 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align to top for scrollable content */
+    align-items: flex-start;
     min-height: 100vh;
     margin: 0;
-    padding-top: 20px; /* Add some padding at the top */
-    padding-bottom: 20px; /* Add padding at the bottom */
-    background-color: #eef1f5; /* Light greyish blue */
+    padding: 30px 15px; /* Added horizontal padding */
+    background-color: #eef1f5;
     color: #333;
     font-size: 16px;
 }
 
 .calculator-container {
     background-color: #ffffff;
-    padding: 25px 35px;
+    padding: 30px 40px;
     border-radius: 12px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
     width: 100%;
-    max-width: 700px; /* Increased width for table */
-    text-align: center;
+    max-width: 850px; /* Wider for more details */
 }
 
-h1 {
-    color: #1a3b5d; /* Dark blue */
-    margin-bottom: 30px;
-    font-size: 2em;
-    font-weight: 600;
+h1, h2, h3 {
+    color: #1a3b5d;
+    text-align: center; /* Center main headings */
 }
+h1 { margin-bottom: 30px; font-size: 2em; font-weight: 600; }
+h2 { margin-top: 30px; margin-bottom: 20px; font-size: 1.6em; border-bottom: 2px solid #dbe3eb; padding-bottom: 10px; text-align: left;}
+h3 { margin-top: 20px; margin-bottom: 15px; font-size: 1.3em; color: #2c5079; text-align: left; }
 
-h2 {
-    color: #2c5079; /* Slightly lighter blue */
-    margin-top: 30px;
-    margin-bottom: 20px;
-    font-size: 1.5em;
-    border-bottom: 2px solid #dbe3eb;
-    padding-bottom: 10px;
-    text-align: left;
-}
-
-.input-section {
-    display: grid;
-    grid-template-columns: 1fr; /* Single column for smaller screens */
-    gap: 20px;
+.input-section, .prepayment-section {
     margin-bottom: 25px;
 }
 
-/* For wider screens, you might use 2 columns:
-@media (min-width: 600px) {
-    .input-section {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    }
-}
-*/
-
 .input-group {
+    margin-bottom: 20px;
     text-align: left;
 }
 
-.input-group label {
+.input-group label, label[for^="prepay"] {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: #4a6a8a; /* Medium blue-grey */
+    color: #4a6a8a;
 }
+label[for^="prepay"] { display: inline-block; margin-right: 15px; margin-left: 5px; font-weight: normal;}
 
-.input-group input[type="number"] {
-    width: calc(100% - 24px); /* Account for padding and border */
+
+.input-group input[type="number"],
+.input-group select {
+    width: calc(100% - 24px);
     padding: 12px;
-    border: 1px solid #c5d2e0; /* Lighter border */
+    border: 1px solid #c5d2e0;
     border-radius: 6px;
     font-size: 1em;
     box-sizing: border-box;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+.input-group select { width: 100%; } /* Select full width */
 
-.input-group input[type="number"]:focus {
+.input-group input[type="number"]:focus,
+.input-group select:focus {
     outline: none;
     border-color: #007bff;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
+.radio-group input[type="radio"] {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.radio-group label {
+    margin-right: 20px;
+    font-weight: normal;
+    vertical-align: middle;
+}
+
+.prepayment-fields {
+    padding: 15px;
+    margin-top: 10px;
+    border: 1px dashed #c5d2e0;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+}
+.prepayment-fields .input-group {
+    margin-bottom: 15px; /* Smaller margin inside these groups */
+}
+.prepayment-fields .input-group:last-child {
+    margin-bottom: 0;
+}
+
+
 button#calculateBtn {
-    background-color: #007bff; /* Primary blue */
+    background-color: #007bff;
     color: white;
     padding: 14px 30px;
     border: none;
@@ -91,43 +100,68 @@ button#calculateBtn {
     font-size: 1.1em;
     font-weight: 500;
     transition: background-color 0.3s ease, transform 0.1s ease;
-    width: auto; /* Or 100% if you prefer full-width */
-    display: inline-block;
-    margin-top: 10px;
+    display: block; /* Make button block to center it */
+    width: auto;
+    min-width: 200px;
+    margin: 20px auto 0 auto; /* Center button */
 }
-
-button#calculateBtn:hover {
-    background-color: #0056b3; /* Darker blue */
-}
-button#calculateBtn:active {
-    transform: scale(0.98);
-}
+button#calculateBtn:hover { background-color: #0056b3; }
+button#calculateBtn:active { transform: scale(0.98); }
 
 .results-container {
     margin-top: 30px;
     text-align: left;
     padding: 20px;
-    background-color: #f8f9fa; /* Very light grey */
+    background-color: #f8f9fa;
     border-radius: 8px;
     border-left: 5px solid #007bff;
 }
-
 .results-container p {
-    margin: 12px 0;
-    font-size: 1.05em;
+    margin: 8px 0;
+    font-size: 1.0em; /* Slightly smaller for more items */
     color: #333;
-    display: flex;
-    justify-content: space-between;
 }
-
-.result-value {
+.results-container strong.result-value {
     font-weight: 600;
     color: #0056b3;
+    float: right; /* Align values to the right */
 }
+.results-container p::after { /* Clearfix for floated strong */
+    content: "";
+    clear: both;
+    display: table;
+}
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Default to 1 column */
+    gap: 5px 20px; /* Row gap, Column gap */
+}
+/* Use 2 columns for summary if space allows */
+@media (min-width: 600px) {
+    .summary-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+     .summary-grid div:nth-last-child(-n+2):nth-child(odd) { /* If last two items are odd, make them span full width */
+        /* This selector is a bit tricky, might need specific classes if layout is complex */
+    }
+}
+
+
+.summary-hr {
+    border: 0;
+    height: 1px;
+    background-color: #dbe3eb;
+    margin: 20px 0;
+}
+.highlight-saved {
+    color: #28a745 !important; /* Green for savings */
+    font-weight: bold;
+}
+
 
 .error-message {
     margin-top: 20px;
-    color: #c0392b; /* Error red */
+    color: #c0392b;
     background-color: #fdecea;
     border: 1px solid #f5c6cb;
     padding: 12px;
@@ -135,57 +169,31 @@ button#calculateBtn:active {
     text-align: center;
 }
 
-/* Amortization Table Styles */
-#amortizationSection {
-    margin-top: 30px;
-}
-
+#amortizationSection { margin-top: 30px; }
 .table-container {
-    max-height: 400px; /* Limit height and make it scrollable */
+    max-height: 450px;
     overflow-y: auto;
     border: 1px solid #dee2e6;
     border-radius: 6px;
     margin-top: 15px;
 }
-
-table {
-    width: 100%;
-    border-collapse: collapse; /* Changed from separate */
-}
-
+table { width: 100%; border-collapse: collapse; }
 th, td {
-    border: 1px solid #e0e0e0; /* Lighter borders for cells */
+    border: 1px solid #e0e0e0;
     padding: 10px 12px;
     text-align: right;
-    font-size: 0.95em;
+    font-size: 0.9em; /* Smaller font for more columns */
+    white-space: nowrap; /* Prevent wrapping in cells */
 }
-
 th {
-    background-color: #f0f4f8; /* Light header background */
+    background-color: #f0f4f8;
     color: #2c5079;
     font-weight: 600;
-    position: sticky; /* Make header sticky */
-    top: 0; /* Stick to the top of the scrollable container */
+    position: sticky;
+    top: 0;
     z-index: 1;
 }
-
-td:first-child, th:first-child { /* Month column */
-    text-align: center;
-}
-td:nth-child(2), th:nth-child(2), /* Principal */
-td:nth-child(3), th:nth-child(3) { /* Interest */
-    /* Specific styles if needed */
-}
-
-tbody tr:nth-child(even) {
-    background-color: #f9f9f9; /* Subtle striping */
-}
-
-tbody tr:hover {
-    background-color: #e9ecef; /* Hover effect */
-}
-
-/* Helper for currency formatting if needed via CSS, though JS is better for precision */
-.currency::before {
-    content: "₹ ";
-}
+td:first-child, th:first-child { text-align: center; }
+tbody tr:nth-child(even) { background-color: #f9f9f9; }
+tbody tr:hover { background-color: #e9ecef; }
+small { font-size: 0.85em; color: #555; display: block; margin-top: 4px;}
