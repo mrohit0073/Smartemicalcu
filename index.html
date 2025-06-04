@@ -4,21 +4,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Smart EMI Calculator Clone</title>
+  <title>Advanced EMI Calculator</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>EMI Calculator with Prepayment</h1>
+    <h1>Advanced EMI Calculator</h1>
     <form id="emiForm">
       <label>Loan Amount (₹): <input type="number" id="loanAmount" required /></label>
-      <label>Interest Rate (% per annum): <input type="number" step="0.01" id="interestRate" required /></label>
+      <label>Interest Rate (% p.a.): <input type="number" step="0.01" id="interestRate" required /></label>
       <label>Loan Tenure (months): <input type="number" id="loanTenure" required /></label>
-      <label>Prepayment Amount (₹): <input type="number" id="prepaymentAmount" /></label>
-      <label>Prepayment Month: <input type="number" id="prepaymentMonth" /></label>
-      <button type="submit">Calculate EMI</button>
+      <label>Prepayment Type:
+        <select id="prepaymentType">
+          <option value="amount">By Money</option>
+          <option value="interest">By Interest Rate Change</option>
+        </select>
+      </label>
+      <label>Prepayment Value: <input type="number" id="prepaymentValue" /></label>
+      <label>Prepayment Frequency:
+        <select id="frequency">
+          <option value="once">One-time</option>
+          <option value="monthly">Monthly</option>
+          <option value="quarterly">Quarterly</option>
+          <option value="halfyearly">Half-Yearly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </label>
+      <label>Prepay From Month: <input type="number" id="prepayStart" /></label>
+      <label>Prepay To Month: <input type="number" id="prepayEnd" /></label>
+      <label>Adjust: 
+        <select id="adjustType">
+          <option value="tenure">Reduce Tenure</option>
+          <option value="emi">Reduce EMI</option>
+        </select>
+      </label>
+      <button type="submit">Calculate</button>
     </form>
     <div id="result"></div>
+    <div id="scheduleTable"></div>
   </div>
   <script src="script.js"></script>
 </body>
