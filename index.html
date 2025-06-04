@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced EMI Calculator with Prepayment</title>
+    <title>Advanced EMI Calculator with Prepayment & Rate Change</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,6 +27,25 @@
             </div>
         </div>
 
+        <div class="rate-change-section">
+            <h2>Interest Rate Change Options</h2>
+            <div class="input-group">
+                <input type="checkbox" id="enableRateChange">
+                <label for="enableRateChange">Enable Interest Rate Change</label>
+            </div>
+
+            <div id="rateChangeFields" class="prepayment-fields" style="display: none;">
+                <div class="input-group">
+                    <label for="newInterestRate">New Annual Interest Rate (%):</label>
+                    <input type="number" id="newInterestRate" placeholder="e.g., 9.0">
+                </div>
+                <div class="input-group">
+                    <label for="rateChangeMonth">Effective After Month #:</label>
+                    <input type="number" id="rateChangeMonth" placeholder="e.g., 24 (after 2 years)">
+                </div>
+            </div>
+        </div>
+
         <div class="prepayment-section">
             <h2>Prepayment Options</h2>
             <div class="input-group">
@@ -34,21 +53,21 @@
                 <div class="radio-group">
                     <input type="radio" id="prepayNone" name="prepaymentType" value="none" checked>
                     <label for="prepayNone">None</label>
-                    <input type="radio" id="prepayOneTime" name="prepaymentType" value="oneTime">
-                    <label for="prepayOneTime">One-Time</label>
+                    <input type="radio" id="prepayLumpsum" name="prepaymentType" value="lumpsum">
+                    <label for="prepayLumpsum">Lumpsum</label>
                     <input type="radio" id="prepayRecurring" name="prepaymentType" value="recurring">
                     <label for="prepayRecurring">Recurring</label>
                 </div>
             </div>
 
-            <div id="oneTimePrepaymentFields" class="prepayment-fields" style="display: none;">
+            <div id="lumpsumPrepaymentFields" class="prepayment-fields" style="display: none;">
                 <div class="input-group">
-                    <label for="oneTimeAmount">One-Time Prepayment Amount (₹):</label>
-                    <input type="number" id="oneTimeAmount" placeholder="e.g., 50000">
+                    <label for="lumpsumAmount">Lumpsum Prepayment Amount (₹):</label>
+                    <input type="number" id="lumpsumAmount" placeholder="e.g., 50000">
                 </div>
                 <div class="input-group">
-                    <label for="oneTimeMonth">Prepay After Month #:</label>
-                    <input type="number" id="oneTimeMonth" placeholder="e.g., 12 (after 1st year)">
+                    <label for="lumpsumMonth">Prepay After Month #:</label>
+                    <input type="number" id="lumpsumMonth" placeholder="e.g., 12 (after 1st year)">
                 </div>
             </div>
 
@@ -66,10 +85,10 @@
                         <option value="1">Monthly (with every EMI)</option>
                     </select>
                 </div>
-                 <div class="input-group">
+                <div class="input-group">
                     <label for="recurringStartMonth">Start Recurring Prepayment After Month #:</label>
                     <input type="number" id="recurringStartMonth" placeholder="e.g., 0 or 12" value="0">
-                     <small>Enter 0 to start from the first possible instance of chosen frequency.</small>
+                    <small>Enter 0 to start from the first possible instance of chosen frequency.</small>
                 </div>
             </div>
         </div>
@@ -87,14 +106,14 @@
             </div>
             <div id="prepaymentSummary" style="display:none;">
                 <hr class="summary-hr">
-                <h3>With Prepayment:</h3>
+                <h3>With Prepayment & Rate Change:</h3>
                 <div class="summary-grid">
                     <div><p>New Loan Tenure:</p><strong id="newTenure" class="result-value"></strong></div>
                     <div><p>Total Interest Paid:</p><strong id="newTotalInterest" class="result-value"></strong></div>
                     <div><p>Total Amount Paid:</p><strong id="newTotalPayment" class="result-value"></strong></div>
                     <div><p>Interest Saved:</p><strong id="interestSaved" class="result-value highlight-saved"></strong></div>
                     <div><p>Money Saved (Interest - Prepayments):</p><strong id="moneySaved" class="result-value highlight-saved"></strong></div>
-                     <div><p>Total Prepayments Made:</p><strong id="totalPrepaymentsMade" class="result-value"></strong></div>
+                    <div><p>Total Prepayments Made:</p><strong id="totalPrepaymentsMade" class="result-value"></strong></div>
                 </div>
             </div>
         </div>
@@ -117,7 +136,7 @@
                         </tr>
                     </thead>
                     <tbody id="amortizationTableBody">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
         </div>
